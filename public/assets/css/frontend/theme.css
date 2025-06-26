@@ -1,0 +1,38 @@
+:root {
+  
+  --primary-color: #009688;
+  --primary-rgb-color: 0, 150, 136;
+  --text-color: #000000;
+}
+body {
+  font-family: "Poppins", "Hind Siliguri", "Roboto", "Montserrat", "Open Sans", sans-serif;
+}
+
+/* Theme related CSS */
+body .checkout-text-orange,
+body .text-primary {
+  color: var(--primary-color);
+}
+body .bg-primary,
+body .bg-orange-500,
+body .ad-orange-bg,
+body .btn-primary,
+body .checkout-orange-bg {
+  background-color: var(--primary-color);
+}
+
+body .border-primary,
+body .hover\:border-primary:hover,
+body .input-primary,
+body .input-primary:focus,
+body .input-primary:focus-within {
+  border-color: var(--primary-color);
+}
+body .btn-primary {
+  border-color: var(--primary-color);
+}
+body .btn-primary,
+body .input-primary:focus,
+body .input-primary:focus-within {
+  outline-color: var(--primary-color);
+}
