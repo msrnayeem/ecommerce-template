@@ -23,6 +23,7 @@ class Order extends Model
         'order_notes',
         'coupon',
         'delivery_charge',
+        'product_price',
         'shipping_status',
         'status',
         'total_amount',

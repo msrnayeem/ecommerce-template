@@ -37,6 +37,7 @@ public function orderNow(Request $request)
     $subtotal = $unitPrice * $validated['quantity'];
     $total = $subtotal + $deliveryCharge;
 
+
     // Create order
     $order = Order::create([
         'id' => (string) Str::uuid(),
@@ -45,6 +46,7 @@ public function orderNow(Request $request)
         'customer_phone' => $validated['phone'],
         'shipping_address' => $validated['inset_address'],
         'shipping_method' => $validated['deliveryTitle'] == '1' ? 'Inside Dhaka' : 'Outside Dhaka',
+        'product_price' => $unitPrice,
         'delivery_charge' => $deliveryCharge,
         'total_amount' => $total,
         'payment_method' => $validated['payment_method'],
@@ -74,8 +76,9 @@ public function orderNow(Request $request)
 
 public function buyNow($sku, $variant = null)
 {
+    //dd($sku, $variant);
     $product = Product::with('variants', 'images')->where('sku', $sku)->firstOrFail();
-
+    //dd($product);
     $variant_info = $variant ? $product->variants->firstWhere('id', $variant) : null;
 
     $cart = [
@@ -92,6 +95,7 @@ public function buyNow($sku, $variant = null)
             'variant_value' => $variant_info?->variant_value,
         ],
     ];
+    //dd($cart);
 
     $total = $cart[0]['price'] * $cart[0]['quantity'];
 

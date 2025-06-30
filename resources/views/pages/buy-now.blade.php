@@ -72,7 +72,10 @@
                                     </td>
                                     <td class="pl-4">
                                         <strong>{{ $cart[0]['name'] }}</strong><br>
-                                        <span>SKU: {{ $cart[0]['sku'] ?? 'N/A' }}</span><br>
+                                        SKU: {{ $cart[0]['sku'] ?? 'N/A' }}</span><br>
+                                        @if ($cart[0]['variant_id'])
+                                            <span>Varaint: {{ $cart[0]['variant_value'] }} </span> </br>
+                                        @endif
                                         Qty:
                                         <div class="flex items-center gap-2">
                                             <button type="button" onclick="updateQuantity(-1)"
@@ -97,10 +100,7 @@
                                 </tr>
                             </table>
 
-                            @if ($cart[0]['variant_id'])
-                                <p class="text-sm text-gray-500">Variant: {{ $cart[0]['variant_name'] }} -
-                                    {{ $cart[0]['variant_value'] }}</p>
-                            @endif
+
 
                             <div class="mt-6">
                                 <label class="flex items-center gap-2">

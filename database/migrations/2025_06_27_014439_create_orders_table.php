@@ -17,9 +17,10 @@ return new class extends Migration {
             $table->string('shipping_method', 100)->nullable();
             $table->text('order_notes')->nullable();
             $table->string('coupon', 50)->nullable();
-            $table->decimal('delivery_charge', 10, 2)->nullable();
             $table->enum('shipping_status', ['pending', 'shipped', 'delivered', 'returned'])->nullable();
             $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->decimal('delivery_charge', 10, 2)->nullable();
+            $table->decimal('product_price', 10, 2)->nullable();
             $table->decimal('total_amount', 10, 2);
             $table->string('payment_method', 50)->nullable();
             $table->string('payment_id', 150)->nullable();
