@@ -1,3 +1,4 @@
+{{-- buy-now --}}
 @extends('layouts.app')
 
 @section('content')

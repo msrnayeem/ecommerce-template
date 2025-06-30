@@ -213,12 +213,17 @@
                                             <input type="hidden" name="variant_id" id="selected-variant-id"
                                                 value="{{ $product->variants->first()->id }}">
                                         @endif
-                                        <button type="submit" class="btn btn-primary w-full submit-btn border-0">কার্ড এ
+                                        <button type="submit" class="btn btn-success w-full submit-btn border-0">কার্ড এ
                                             যুক্ত করুন</button>
                                     </form>
                                     <!-- Order Now Button -->
-                                    <a href="{{ route('buy.now', $product->sku) }}"
-                                        class="btn btn-success w-full submit-btn border-0">অর্ডার করুন</a>
+                                    @if ($product->variants->count())
+                                        <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->variants->first()->id]) }}"
+                                            class="btn btn-success w-full submit-btn border-0">Order Now </a>
+                                    @else
+                                        <a href="{{ route('buy.now', $product->sku) }}"
+                                            class="btn btn-success w-full submit-btn border-0">Order Now </a>
+                                    @endif
                                 </div>
                             </div>
                             <!-- Action Buttons -->
@@ -401,9 +406,9 @@
                     displayPriceWrap.innerHTML = `
                         <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                         ${discount > 0 ? `
-                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                            ` : ''}
+                                                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                        ` : ''}
                     `;
                 });
             }
