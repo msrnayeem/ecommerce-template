@@ -47,11 +47,11 @@
                                 </tr>
                             </thead>
                             <tbody class="border-b border-dashed border-gray-400">
-                                @foreach ($cart as $item)
+                                @foreach ($cart as $cartKey => $item)
                                     <tr class="my-2 flex justify-between items-center pr-2 shadow-md">
                                         <!-- Checkbox -->
                                         <td class="w-1/12 p-2">
-                                            <input type="checkbox" name="selected_products[]" value="{{ $item['id'] }}"
+                                            <input type="checkbox" name="selected_products[]" value="{{ $cartKey }}"
                                                 class="form-checkbox h-5 w-5 text-primary" checked>
                                         </td>
                                         <!-- Product Image and Details -->
@@ -61,7 +61,13 @@
                                                     src="{{ $item['image'] }}">
                                             </div>
                                             <div class="ml-4">
-                                                <h1 class="c-length text-lg md:font-semibold line-clamp">{{ $item['name'] }}
+                                                <h1 class="c-length text-lg md:font-semibold line-clamp">
+                                                    {{ $item['name'] }}
+                                                    @if ($item['variant_id'] && !empty($item['variant_name']) && !empty($item['variant_value']))
+                                                        ({{ $item['variant_name'] }}: {{ $item['variant_value'] }})
+                                                    @elseif ($item['variant_id'])
+                                                        <span class="text-red-500">(Variant data missing)</span>
+                                                    @endif
                                                 </h1>
                                                 <!-- Increment Decrement -->
                                                 <div class="mt-1 flex items-center">
@@ -69,14 +75,14 @@
                                                     <div
                                                         class="flex justify-between border border-gray-300 rounded px-1 w-[80px]">
                                                         <div class="flex justify-center items-center checkout-text-orange w-6 cursor-pointer"
-                                                            onclick="updateQuantity('{{ $item['id'] }}', -1)">
+                                                            onclick="updateQuantity('{{ $cartKey }}', -1)">
                                                             <i class="bi bi-dash scale-150"></i>
                                                         </div>
                                                         <div class="text-center w-1/2">
                                                             <h3 class="text-lg font-bold">{{ $item['quantity'] }}</h3>
                                                         </div>
                                                         <div class="flex justify-center items-center checkout-text-orange w-6 cursor-pointer"
-                                                            onclick="updateQuantity('{{ $item['id'] }}', 1)">
+                                                            onclick="updateQuantity('{{ $cartKey }}', 1)">
                                                             <i class="bi bi-plus scale-150"></i>
                                                         </div>
                                                     </div>
@@ -104,8 +110,7 @@
                                                     <form action="{{ route('cart.remove') }}" method="post"
                                                         class="inline">
                                                         @csrf
-                                                        <input type="hidden" name="product_id"
-                                                            value="{{ $item['id'] }}">
+                                                        <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                                         <button type="submit"
                                                             class="text-black underline hover:text-red-600 transition hover:cursor-pointer">Remove</button>
                                                     </form>
@@ -148,7 +153,7 @@
     </section>
 
     <script>
-        function updateQuantity(productId, change) {
+        function updateQuantity(cartKey, change) {
             // Store checkbox states
             const checkboxes = document.querySelectorAll('input[name="selected_products[]"]');
             const checkedStates = Array.from(checkboxes).map(cb => ({
@@ -163,22 +168,14 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
-                        product_id: productId,
+                        cart_key: cartKey,
                         change: change
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Reload page and restore checkbox states
                         location.reload();
-                        document.addEventListener('DOMContentLoaded', () => {
-                            checkedStates.forEach(state => {
-                                const checkbox = document.querySelector(
-                                    `input[name="selected_products[]"][value="${state.id}"]`);
-                                if (checkbox) checkbox.checked = state.checked;
-                            });
-                        });
                     } else {
                         alert(data.error || 'Error updating quantity');
                     }
@@ -194,7 +191,7 @@
             const selectedProducts = document.querySelectorAll('input[name="selected_products[]"]:checked');
             if (selectedProducts.length === 0) {
                 e.preventDefault();
-                alert('Please select at least one product to proceed to checkout.');
+                alert('Please select at least one item to proceed to checkout.');
             }
         });
     </script>

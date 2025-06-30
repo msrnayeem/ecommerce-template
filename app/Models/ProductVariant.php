@@ -15,6 +15,7 @@ class ProductVariant extends Model
         'variant_name',
         'variant_value',
         'price',
+        'discount_price',
     ];
 
     public function product()
@@ -30,5 +31,10 @@ class ProductVariant extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class, 'variant_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class, 'variant_id', 'id');
     }
 }

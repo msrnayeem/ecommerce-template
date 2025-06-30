@@ -26,28 +26,29 @@
             <div
                 class="stx-product-details-image-container lg:col-span-5 md:col-span-5 col-span-10 product-details-image mt-3">
                 <div class="border p-0 md:p-5" id="image-gallery">
+                    <!-- Main Slider -->
                     <div id="main-slider" class="splide main-image">
                         <div class="splide__track">
-                            <div class="splide__list">
+                            <div class="splide__list" id="main-image-list">
                                 @forelse($product->images as $image)
-                                    <div class="splide__slide imageZoom">
+                                    <div class="splide__slide imageZoom"
+                                        data-variant-id="{{ $image->variant_id ?? 'none' }}">
                                         <div class="flexImg">
                                             <img src="{{ $image->image_path }}" alt="{{ $image->alt_text }}"
-                                                class="main-image" style="">
+                                                class="main-image">
                                             <div class="zoomImg">
                                                 <img src="{{ $image->image_path }}" alt="{{ $image->alt_text }}"
-                                                    class="zoom-image" style="">
+                                                    class="zoom-image">
                                             </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <div class="splide__slide imageZoom">
+                                    <div class="splide__slide imageZoom" data-variant-id="none">
                                         <div class="flexImg">
-                                            <img src="https://via.placeholder.com/150" alt="No image" class="main-image"
-                                                style="">
+                                            <img src="https://via.placeholder.com/150" alt="No image" class="main-image">
                                             <div class="zoomImg">
-                                                <img src="https://via.placeholder.com/150" alt="No image" class="zoom-image"
-                                                    style="">
+                                                <img src="https://via.placeholder.com/150" alt="No image"
+                                                    class="zoom-image">
                                             </div>
                                         </div>
                                     </div>
@@ -55,25 +56,36 @@
                             </div>
                         </div>
                     </div>
-
+                    <!-- Thumbnail Slider -->
                     <div id="thumbnail-slider" class="splide mt-5">
                         <div class="splide__track">
-                            <div class="splide__list">
+                            <div class="splide__list" id="thumbnail-image-list">
                                 @forelse($product->images as $image)
-                                    <div class="splide__slide">
-                                        <img src="{{ $image->image_path }}" alt="{{ $image->alt_text }}" class="main-image"
-                                            style="">
+                                    <div class="splide__slide" data-variant-id="{{ $image->variant_id ?? 'none' }}">
+                                        <img src="{{ $image->image_path }}" alt="{{ $image->alt_text }}"
+                                            class="main-image">
                                     </div>
                                 @empty
-                                    <div class="splide__slide">
-                                        <img src="https://via.placeholder.com/150" alt="No image" class="main-image"
-                                            style="">
+                                    <div class="splide__slide" data-variant-id="none">
+                                        <img src="https://via.placeholder.com/150" alt="No image" class="main-image">
                                     </div>
                                 @endforelse
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- Hidden input to store all images data -->
+                <input type="hidden" id="product-images-data"
+                    value="{{ json_encode(
+                        $product->images->map(function ($image) {
+                                return [
+                                    'id' => $image->id,
+                                    'image_path' => $image->image_path,
+                                    'alt_text' => $image->alt_text,
+                                    'variant_id' => $image->variant_id ?? 'none',
+                                ];
+                            })->toArray(),
+                    ) }}">
             </div>
 
             <!-- Product Info -->
@@ -81,8 +93,7 @@
                 <div class="md:p-5 p-0 md:border">
                     <div class="stx-product-details-product-info">
                         <h2 class="stx-product-details-product-title text-xl md:text-2xl font-semibold">
-                            {{ $product->name }}
-                        </h2>
+                            {{ $product->name }}</h2>
                         <div class="stx-product-details-product-sku-container flex justify-between">
                             <div class="stx-product-details-product-sku">
                                 <strong class="text-lg uppercase">SKU:</strong> {{ $product->sku }}
@@ -112,22 +123,58 @@
                             </div>
                         </div>
                         <!-- Price and Variations -->
-                        <div class="stx-product-details-product-price-container flex items-center">
+                        <div class="stx-product-details-product-price-container flex items-center mb-2">
                             <strong class="stx-product-details-product-price-title text-lg uppercase">PRICE:</strong>
-                            <span class="text-lg md:text-xl ml-1 font-bold">
-                                <ins class="text-primary">
-                                    Tk {{ number_format($product->discount_price ?? $product->price) }}
+                            <span class="text-lg md:text-xl ml-1 font-bold" id="display-price-wrap">
+                                @php
+                                    $hasVariants = $product->variants->count() > 0;
+                                    $firstVariant = $hasVariants ? $product->variants->first() : null;
+                                    $variantPrice = $firstVariant
+                                        ? $firstVariant->discount_price ?? $firstVariant->price
+                                        : null;
+                                    $variantOldPrice = $firstVariant ? $firstVariant->price : null;
+                                @endphp
+                                <ins class="text-primary" id="display-price">
+                                    Tk
+                                    {{ $hasVariants ? number_format($variantPrice) : number_format($product->discount_price ?? $product->price) }}
                                 </ins>
-                                @if ($product->discount_price)
-                                    <del class="text-gray-400 font-normal ml-2">
+                                @if ($hasVariants && $firstVariant && $firstVariant->discount_price)
+                                    <del class="text-gray-400 font-normal ml-2" id="display-old-price">
+                                        Tk {{ number_format($variantOldPrice) }}
+                                    </del>
+                                    <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1"
+                                        id="display-discount">
+                                        {{ number_format($variantOldPrice - $firstVariant->discount_price) }} Tk off
+                                    </span>
+                                @elseif(!$hasVariants && $product->discount_price)
+                                    <del class="text-gray-400 font-normal ml-2" id="display-old-price">
                                         Tk {{ number_format($product->price) }}
                                     </del>
-                                    <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1">
+                                    <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1"
+                                        id="display-discount">
                                         {{ number_format($product->price - $product->discount_price) }} Tk off
                                     </span>
                                 @endif
                             </span>
                         </div>
+
+                        @if ($product->variants->count())
+                            <div class="mb-4">
+                                <label for="variant-select" class="text-lg uppercase font-bold mb-1 block">Choose
+                                    Variant:</label>
+                                <select id="variant-select" name="variant_id" class="border rounded p-2 w-full max-w-xs">
+                                    @foreach ($product->variants as $variant)
+                                        <option value="{{ $variant->id }}"
+                                            data-price="{{ $variant->discount_price ?? $variant->price }}"
+                                            data-old-price="{{ $variant->price }}"
+                                            data-discount="{{ $variant->discount_price ? number_format($variant->price - $variant->discount_price) : 0 }}">
+                                            {{ $variant->variant_name }}: {{ $variant->variant_value }}
+                                            (Tk {{ number_format($variant->discount_price ?? $variant->price) }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
 
                         <strong class="stx-product-details-product-varations-container-4-item-title text-lg uppercase">
                             Status: <span class="text-success capitalize">
@@ -139,7 +186,7 @@
                             </span>
                         </strong>
 
-                        <div class="">
+                        <div>
                             <div class="md:block flex-col items-center md:pt-0 pt-2">
                                 <div class="quantity-wrap flex md:py-3 md:mr-0 mr-3 mb-2">
                                     <label for="qty"
@@ -162,9 +209,12 @@
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                                         <input type="hidden" name="quantity" id="cart-qty" value="1">
-                                        <button type="submit" class="btn btn-primary w-full submit-btn border-0">
-                                            কার্ড এ যুক্ত করুন
-                                        </button>
+                                        @if ($product->variants->count())
+                                            <input type="hidden" name="variant_id" id="selected-variant-id"
+                                                value="{{ $product->variants->first()->id }}">
+                                        @endif
+                                        <button type="submit" class="btn btn-primary w-full submit-btn border-0">কার্ড এ
+                                            যুক্ত করুন</button>
                                     </form>
                                     <!-- Order Now Button -->
                                     <a href="{{ route('buy.now', $product->sku) }}"
@@ -175,14 +225,7 @@
                             <a href="tel:01516137894" id="product-details-cal-now-button"
                                 class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto">
                                 <div class="flex items-center">
-                                    <div class="mr-2 button-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem"
-                                            fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
-                                            <path
-                                                d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z">
-                                            </path>
-                                        </svg>
-                                    </div>
+                                    <div class="mr-2 button-icon"></div>
                                     <div>Call Now: +8801516137894</div>
                                 </div>
                             </a>
@@ -191,14 +234,7 @@
                                 class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto c-no-radius text-white"
                                 style="background-color: rgba(16, 149, 136, 1);">
                                 <div class="flex items-center">
-                                    <div class="mr-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem"
-                                            fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
-                                            <path
-                                                d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z">
-                                            </path>
-                                        </svg>
-                                    </div>
+                                    <div class="mr-2"></div>
                                     <div><strong>হোয়াটসঅ্যাপ অর্ডার</strong></div>
                                 </div>
                             </a>
@@ -207,21 +243,13 @@
                                 id="products-details-messanger-button"
                                 style="background-color: rgba(17, 139, 128, 1); color: rgba(255, 255, 255, 1);">
                                 <div class="flex items-center">
-                                    <div class="mr-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="2rem"
-                                            fill="currentColor" class="bi bi-messenger" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 7.76C0 3.301 3.493 0 8 0s8 3.301 8 7.76-3.493 7.76-8 7.76c-.81 0-1.586-.107-2.316-.307a.64.64 0 0 0-.427.03l-1.588.702a.64.64 0 0 1-.898-.566l-.044-1.423a.64.64 0 0 0-.215-.456C.956 12.108 0 10.092 0 7.76m5.546-1.459-2.35 3.728c-.225.358.214.761.551.506l2.525-1.916a.48.48 0 0 1 .578-.002l1.869 1.402a1.2 1.2 0 0 0 1.735-.32l2.35-3.728c.226-.358-.214-.761-.551-.506L9.728 7.381a.48.48 0 0 1-.578.002L7.281 5.98a1.2 1.2 0 0 0-1.735.32z">
-                                            </path>
-                                        </svg>
-                                    </div>
+                                    <div class="mr-2"></div>
                                     <div><strong>ম্যাসেঞ্জার অর্ডার</strong></div>
                                 </div>
                             </a>
                             <!-- Product Notes -->
                             <div class="stx-product-details-product-notes rounded-md p-4 alert-info mb-5 mt-5 text-xs">
-                                <h3>
-                                    আমাদের প্রতিটা ৫০০টাকার নিচের পন্য ১মাস ওয়ারেন্টি এবং ৫০০টাকার উপরের পন্য ৩মাস ওয়ারেন্টি
+                                <h3>আমাদের প্রতিটা ৫০০টাকার নিচের পন্য ১মাস ওয়ারেন্টি এবং ৫০০টাকার উপরের পন্য ৩মাস ওয়ারেন্টি
                                 </h3>
                                 <p><span class="marker"><strong>যে কোন ২টি পন্য কিনলে ডেলিভারি চার্জ একদম
                                             ফ্রি</strong></span></p>
@@ -236,7 +264,6 @@
         <div class="tabset product-desc-tabs col-span-10">
             <input type="radio" name="tabset" id="tab1" aria-controls="marzen" checked>
             <label for="tab1">পন্যের বিবরণ</label>
-
             <div class="tab-panels text-left">
                 <section id="marzen" class="tab-panel !pt-0">
                     <div class="text-md md:text-lg p-5 border border-[var(--primary-color)] border-t-0">
@@ -262,8 +289,6 @@
                     <h4 class="uppercase text-lg md:text-3xl md:tracking-widest font-bold">Related Products</h4>
                 </div>
             </div>
-
-            <!-- Slider -->
             <div id="splide02" class="splide products-list similar-products">
                 <div class="splide__track">
                     <div class="splide__list">
@@ -284,11 +309,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Splide sliders
+            const mainSlider = new Splide('#main-slider', {
+                type: 'loop',
+                perPage: 1,
+                arrows: true,
+                pagination: false,
+            }).mount();
+
+            const thumbnailSlider = new Splide('#thumbnail-slider', {
+                fixedWidth: 100,
+                fixedHeight: 60,
+                gap: 10,
+                rewind: true,
+                pagination: false,
+                isNavigation: true,
+                breakpoints: {
+                    600: {
+                        fixedWidth: 60,
+                        fixedHeight: 44
+                    },
+                },
+            }).mount();
+
+            mainSlider.sync(thumbnailSlider);
+
+            // Quantity controls
             const decreaseBtn = document.querySelector('.decrease-qty');
             const increaseBtn = document.querySelector('.increase-qty');
             const qtyInput = document.querySelector('#qty');
             const cartQtyInput = document.querySelector('#cart-qty');
+            const variantSelect = document.querySelector('#variant-select');
+            const selectedVariantInput = document.querySelector('#selected-variant-id');
+            const imagesData = JSON.parse(document.querySelector('#product-images-data').value);
+            const displayPriceWrap = document.querySelector('#display-price-wrap');
 
+            // Quantity controls
             decreaseBtn.addEventListener('click', () => {
                 let value = parseInt(qtyInput.value);
                 if (value > 1) {
@@ -306,6 +362,51 @@
             qtyInput.addEventListener('input', () => {
                 cartQtyInput.value = qtyInput.value;
             });
+
+            // Variant selection and image update
+            if (variantSelect) {
+                variantSelect.addEventListener('change', function() {
+                    const selectedVariantId = this.value;
+                    selectedVariantInput.value = selectedVariantId;
+
+                    // Find the first image for the selected variant
+                    let selectedImage = imagesData.find(image => image.variant_id === selectedVariantId);
+                    // Fallback to first product-level image if no variant-specific image
+                    if (!selectedImage) {
+                        selectedImage = imagesData.find(image => image.variant_id === 'none');
+                    }
+                    // Fallback to placeholder if no images
+                    if (!selectedImage) {
+                        selectedImage = {
+                            image_path: 'https://via.placeholder.com/150',
+                            alt_text: 'No image',
+                            variant_id: 'none'
+                        };
+                    }
+
+                    // Update main slider to show the selected image
+                    const imageIndex = imagesData.findIndex(image =>
+                        image.image_path === selectedImage.image_path &&
+                        image.alt_text === selectedImage.alt_text &&
+                        image.variant_id === selectedImage.variant_id
+                    );
+                    mainSlider.go(imageIndex !== -1 ? imageIndex : 0);
+
+                    // Update price
+                    const selectedOption = this.options[this.selectedIndex];
+                    const price = selectedOption.dataset.price;
+                    const oldPrice = selectedOption.dataset.oldPrice;
+                    const discount = selectedOption.dataset.discount;
+
+                    displayPriceWrap.innerHTML = `
+                        <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
+                        ${discount > 0 ? `
+                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                            ` : ''}
+                    `;
+                });
+            }
         });
     </script>
 @endsection

@@ -10,6 +10,7 @@ return new class extends Migration {
         Schema::create('product_images', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('product_id');
+            $table->uuid('variant_id')->nullable();
             $table->string('image_path', 255);
             $table->string('alt_text', 255)->nullable();
             $table->boolean('is_primary')->default(false);
@@ -17,6 +18,7 @@ return new class extends Migration {
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('variant_id')->references('id')->on('product_variants')->onDelete('cascade');
             $table->index('order');
         });
     }

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Offer;
-use App\Models\Product;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -17,34 +15,29 @@ class HomeController extends Controller
             ->orderBy('serial_no')
             ->get();
 
-        // Fetch offer products for multiple offer sections
+        // Fetch offer products for multiple offer sections, eager load images and variants
         $offers = Offer::where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('end_date')
-                      ->orWhere('end_date', '>=', now());
+                    ->orWhere('end_date', '>=', now());
             })
-            ->with(['products' => function ($query) {
-                $query->where('visibility', 'public')
-                      ->with(['images' => function ($q) {
-                          $q->where('is_primary', true)->first();
-                      }]);
-            }])
+            ->with([
+                'products.images',        // eager load all images
+                'products.variants',      // eager load variants if you want to show variant price
+            ])
             ->orderBy('created_at', 'desc')
-            ->take(3) // Limit to 3 offer sections
+            ->take(3)
             ->get();
 
-        // Fetch categories with products
+        // Fetch categories with products, eager load images and variants
         $categories = Category::whereHas('products', function ($query) {
             $query->where('visibility', 'public');
         })
-            ->with(['products' => function ($query) {
-                $query->where('visibility', 'public')
-                      ->with(['images' => function ($q) {
-                          $q->where('is_primary', true)->first();
-                      }])
-                      ->take(5); // Limit to 5 products per category
-            }])
-            ->take(2) // Limit to 2 categories
+            ->with([
+                'products.images',
+                'products.variants',
+            ])
+            ->take(2)
             ->get();
 
         return view('pages.index', compact('banners', 'offers', 'categories'));

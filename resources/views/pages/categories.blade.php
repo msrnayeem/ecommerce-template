@@ -34,9 +34,11 @@
             </div>
 
             <!-- Pagination Links -->
-            <div class="mt-8">
-                {{ $products->links() }}
-            </div>
+            @if (method_exists($products, 'links') && $products->hasPages())
+                <div class="mt-8">
+                    {{ $products->links() }}
+                </div>
+            @endif
         </div>
     </section>
 @endsection

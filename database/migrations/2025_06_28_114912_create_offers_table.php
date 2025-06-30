@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name'); // e.g., ফ্ল্যাশ সেল, বিশেষ অফার
+            $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->dateTime('start_date')->nullable();
@@ -23,9 +20,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('offers');

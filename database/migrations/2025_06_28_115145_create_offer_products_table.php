@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('offer_products', function (Blueprint $table) {
@@ -21,14 +18,11 @@ return new class extends Migration
             $table->foreign('offer_id')->references('id')->on('offers')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->foreign('variant_id')->references('id')->on('product_variants')->onDelete('set null');
-            $table->primary(['offer_id', 'product_id']); // Removed variant_id from primary key
-            $table->unique(['offer_id', 'product_id', 'variant_id']); // Added unique constraint
+            $table->primary(['offer_id', 'product_id']);
+            $table->unique(['offer_id', 'product_id', 'variant_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('offer_products');

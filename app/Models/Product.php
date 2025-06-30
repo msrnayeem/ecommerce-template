@@ -37,20 +37,30 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    // FIXED: Return all images (product + variant)
     public function images()
     {
         return $this->hasMany(ProductImage::class);
     }
 
+    public function productImages()
+    {
+        return $this->hasMany(ProductImage::class)->whereNull('variant_id');
+    }
+
+    public function variantImages()
+    {
+        return $this->hasMany(ProductImage::class)->whereNotNull('variant_id');
+    }
+
+    public function allImages()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
 
     public function stocks()
     {
         return $this->hasMany(Stock::class);
-    }
-
-    public function discounts()
-    {
-        return $this->hasMany(Discount::class);
     }
 
     public function orderItems()
@@ -70,8 +80,8 @@ class Product extends Model
 
     public function offers()
     {
-        return $this->belongsToMany(Offer::class, 'offer_product')
-                    ->withPivot('variant_id', 'offer_price')
-                    ->withTimestamps();
+        return $this->belongsToMany(Offer::class, 'offer_products')
+            ->withPivot('variant_id', 'offer_price')
+            ->withTimestamps();
     }
 }

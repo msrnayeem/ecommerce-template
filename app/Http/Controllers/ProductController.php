@@ -11,7 +11,6 @@ class ProductController extends Controller
     public function buyNow($sku)
     {
         $product = Product::with('variants', 'images')->where('sku', $sku)->firstOrFail();
-dd($product);
         $cart = [
             [
                 'id' => $product->id,
@@ -48,10 +47,9 @@ dd($product);
     public function show($sku)
     {
         $product = Product::where('sku', $sku)
-            ->with('images')
+            ->with(['images', 'variants']) // Make sure to eager load variants too
             ->firstOrFail();
 
-        // Fetch related products (from the same category, excluding the current product)
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->with(['images' => function ($query) {
@@ -59,7 +57,7 @@ dd($product);
             }])
             ->take(4)
             ->get();
-
+//dd($product);
         return view('pages.product-details', compact('product', 'relatedProducts'));
     }
 

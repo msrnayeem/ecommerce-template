@@ -40,8 +40,8 @@ class Offer extends Model
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'offer_product')
-                    ->withPivot('variant_id', 'offer_price')
-                    ->withTimestamps();
+        return $this->belongsToMany(Product::class, 'offer_products')
+            ->withPivot('variant_id', 'offer_price')
+            ->withTimestamps();
     }
 }

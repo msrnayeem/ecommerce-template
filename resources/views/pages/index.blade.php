@@ -1,3 +1,4 @@
+{{-- index --}}
 @extends('layouts.app')
 
 @section('content')
@@ -22,7 +23,7 @@
     </div>
 
     <!-- Offer Sections -->
-    @foreach ($offers as $offer)
+    @forelse ($offers as $offer)
         <div id="offer-{{ $offer->slug }}-section-wrapper">
             <div id="offer-{{ $offer->slug }}-products-list">
                 <div class="container">
@@ -37,18 +38,24 @@
                     <div id="splide-{{ $offer->slug }}" class="splide products-list">
                         <div class="splide__track">
                             <div class="splide__list">
-                                @foreach ($offer->products as $product)
+                                @forelse ($offer->products as $product)
                                     <div class="splide__slide">
                                         <x-product-card :product="$product" />
                                     </div>
-                                @endforeach
+                                @empty
+                                    <div class="splide__slide">
+                                        <p class="text-center text-gray-500">No products available.</p>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    @endforeach
+    @empty
+    @endforelse
+
 
     <!-- Category Sections -->
     @foreach ($categories as $category)

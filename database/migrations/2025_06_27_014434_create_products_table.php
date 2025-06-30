@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->string('sku', 50)->unique();
             $table->string('name', 255);
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
             $table->decimal('discount_price', 10, 2)->nullable();
             $table->uuid('category_id');
             $table->string('warranty', 100)->nullable();
