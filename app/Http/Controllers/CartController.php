@@ -14,54 +14,36 @@ class CartController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
-            'variant_id' => 'nullable|exists:product_variants,id,product_id,{$request->product_id}',
-            'redirect_to_checkout' => 'nullable|boolean',
+            'variant_id' => 'nullable|exists:product_variants,id',
         ]);
 
-        $product = Product::with(['images' => function ($query) {
-            $query->where('is_primary', true)->first();
-        }, 'variants'])->findOrFail($request->product_id);
+        $product = Product::with(['images', 'variants'])->findOrFail($request->product_id);
+        $variant = $request->variant_id ? ProductVariant::findOrFail($request->variant_id) : null;
 
-        $variant = $request->variant_id ? ProductVariant::where('id', $request->variant_id)
-            ->where('product_id', $product->id)
-            ->firstOrFail() : null;
-
-        // Get cart from cookie
         $cart = json_decode(Cookie::get('cart', '[]'), true);
 
-        // Unique key for cart item
         $cartKey = $variant ? $product->id . '_' . $variant->id : $product->id;
 
-        // Prepare cart item data
         $cartItem = [
             'id' => $product->id,
             'name' => $product->name,
             'sku' => $product->sku,
             'price' => $variant ? ($variant->discount_price ?? $variant->price) : ($product->discount_price ?? $product->price),
             'original_price' => $variant ? $variant->price : $product->price,
-            'image' => $product->images->first() ? $product->images->first()->image_path : 'https://via.placeholder.com/150',
+            'image' => $product->images->first()?->image_path ?? 'https://via.placeholder.com/150',
             'quantity' => $request->quantity,
-            'variant_id' => $variant ? $variant->id : null,
-            'variant_name' => $variant ? $variant->variant_name : null,
-            'variant_value' => $variant ? $variant->variant_value : null,
+            'variant_id' => $variant?->id,
+            'variant_name' => $variant?->variant_name,
+            'variant_value' => $variant?->variant_value,
         ];
 
-        // If product/variant is already in cart, update quantity
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $request->quantity;
         } else {
             $cart[$cartKey] = $cartItem;
         }
 
-        // Save cart to cookie (expires in 30 days)
         Cookie::queue('cart', json_encode($cart), 43200);
-
-        // Debug: Log cart item to verify data
-        \Log::info('Cart item added:', $cartItem);
-
-        if ($request->input('redirect_to_checkout', false)) {
-            return redirect()->route('cart.index', ['selected_products' => [$cartKey]])->with('success', 'Product added to cart. Proceed to checkout.');
-        }
 
         return redirect()->back()->with('success', 'Product added to cart successfully!');
     }
