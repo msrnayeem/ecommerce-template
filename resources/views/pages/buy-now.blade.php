@@ -26,8 +26,10 @@
             </div>
 
             <div id="checkout-form-wrapper">
-                <form action="{{ route('cart.submit') }}" method="post">
+                <form action="{{ route('order.now') }}" method="post">
                     @csrf
+                    <input type="hidden" name="sku" value="{{ $cart[0]['sku'] ?? '' }}">
+                    <input type="hidden" name="variant_id" value="{{ $cart[0]['variant_id'] ?? '' }}">
                     <div class="flex mt-10 md:justify-center md:flex-row flex-col md:gap-20 form-inner-wrapper">
                         <div class="md:w-1/2 p-2 form-inner-left-part">
                             <div class="mb-5">
@@ -52,27 +54,13 @@
                             <div class="mb-5">
                                 <label class="block mb-2 font-medium">ডেলিভারি এলাকা <span
                                         class="text-red-500">*</span></label>
-                                <select name="deliveryTitle" class="w-full border border-gray-300 p-2 rounded" required>
+                                <select name="deliveryTitle" id="deliveryTitle"
+                                    class="w-full border border-gray-300 p-2 rounded" required>
                                     <option value="">সিলেক্ট করুন</option>
-                                    <option value="1">ঢাকা সিটির মধ্যে</option>
-                                    <option value="2">ঢাকা সিটির বাহিরে</option>
+                                    <option value="1" data-charge="60">ঢাকা সিটির মধ্যে</option>
+                                    <option value="2" data-charge="120">ঢাকা সিটির বাহিরে</option>
                                 </select>
                             </div>
-
-                            @if ($product->variants->count())
-                                <div class="mb-5">
-                                    <label class="block mb-2 font-medium">ভ্যারিয়েন্ট সিলেক্ট করুন <span
-                                            class="text-red-500">*</span></label>
-                                    <select name="variant_id" class="w-full border border-gray-300 p-2 rounded" required>
-                                        <option value="">একটি বেছে নিন</option>
-                                        @foreach ($product->variants as $variant)
-                                            <option value="{{ $variant->id }}">{{ $variant->variant_name }} -
-                                                {{ $variant->variant_value }} (Tk {{ number_format($variant->price) }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
                         </div>
 
                         <div class="md:w-1/2 p-2 form-inner-right-part">
@@ -84,14 +72,35 @@
                                     </td>
                                     <td class="pl-4">
                                         <strong>{{ $cart[0]['name'] }}</strong><br>
+                                        <span>SKU: {{ $cart[0]['sku'] ?? 'N/A' }}</span><br>
                                         Qty:
-                                        <input type="number" name="quantity" value="1" min="1"
-                                            class="border border-gray-300 p-1 w-16 text-center">
+                                        <div class="flex items-center gap-2">
+                                            <button type="button" onclick="updateQuantity(-1)"
+                                                class="bg-gray-200 px-2 py-1 rounded">-</button>
+                                            <input type="number" id="quantity" name="quantity" value="1"
+                                                min="1" class="border border-gray-300 p-1 w-16 text-center" readonly>
+                                            <button type="button" onclick="updateQuantity(1)"
+                                                class="bg-gray-200 px-2 py-1 rounded">+</button>
+                                        </div>
                                         <br>
-                                        Price: Tk {{ number_format($cart[0]['price']) }}
+                                        <span>Price: Tk <span
+                                                id="unitPrice">{{ number_format($cart[0]['price']) }}</span></span>
+                                        <br>
+                                        <span>Subtotal: Tk <span
+                                                id="subtotal">{{ number_format($cart[0]['price']) }}</span></span>
+                                        <br>
+                                        <span>Delivery: Tk <span id="deliveryCharge">0</span></span>
+                                        <br>
+                                        <span>Total: Tk <span
+                                                id="totalPrice">{{ number_format($cart[0]['price']) }}</span></span>
                                     </td>
                                 </tr>
                             </table>
+
+                            @if ($cart[0]['variant_id'])
+                                <p class="text-sm text-gray-500">Variant: {{ $cart[0]['variant_name'] }} -
+                                    {{ $cart[0]['variant_value'] }}</p>
+                            @endif
 
                             <div class="mt-6">
                                 <label class="flex items-center gap-2">
@@ -107,7 +116,7 @@
                             <div class="mt-6">
                                 <button type="submit"
                                     class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 w-full font-bold rounded">
-                                    অর্ডার টি কনফার্ম করুন (Tk {{ number_format($total) }})
+                                    অর্ডার টি কনফার্ম করুন (Tk <span id="buttonTotal">{{ number_format($total) }}</span>)
                                 </button>
                             </div>
                         </div>
@@ -116,4 +125,34 @@
             </div>
         </div>
     </section>
+
+    <script>
+        const unitPrice = {{ $cart[0]['price'] }};
+        let quantity = 1;
+        let deliveryCharge = 0;
+
+        function updateQuantity(change) {
+            quantity = Math.max(1, quantity + change);
+            document.getElementById('quantity').value = quantity;
+            updatePrice();
+        }
+
+        function updatePrice() {
+            const subtotal = unitPrice * quantity;
+            const total = subtotal + deliveryCharge;
+
+            document.getElementById('subtotal').textContent = subtotal.toLocaleString();
+            document.getElementById('totalPrice').textContent = total.toLocaleString();
+            document.getElementById('buttonTotal').textContent = total.toLocaleString();
+        }
+
+        document.getElementById('deliveryTitle').addEventListener('change', function() {
+            deliveryCharge = parseInt(this.options[this.selectedIndex].getAttribute('data-charge')) || 0;
+            document.getElementById('deliveryCharge').textContent = deliveryCharge.toLocaleString();
+            updatePrice();
+        });
+
+        // Initial price update
+        updatePrice();
+    </script>
 @endsection

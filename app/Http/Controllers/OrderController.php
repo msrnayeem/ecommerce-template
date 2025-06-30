@@ -87,15 +87,16 @@ class OrderController extends Controller
             ->with('success', 'Order placed successfully! Your order ID is ' . $order->id);
     }
 
-    public function success(Request $request, $order_id)
-    {
-        $order = Order::with('items')->findOrFail($order_id);
-        return view('pages.success', compact('order'));
-    }
-
+ public function success($order_id)
+{
+    $order = Order::with('orderItems')->findOrFail($order_id);
+    return view('pages.success', compact('order'));
+}
     public function invoice(Request $request, $order_id)
     {
         $order = Order::with('items')->findOrFail($order_id);
         return view('pages.invoice', compact('order'));
     }
+
+
 }

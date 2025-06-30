@@ -57,9 +57,6 @@
                     </div>
                 @endif
 
-                @php
-                    $order = \App\Models\Order::with('orderItems')->find(request()->query('order_id'));
-                @endphp
                 @if ($order)
                     <div class="flex flex-col md:flex-row mt-10 md:gap-20 form-inner-wrapper">
                         <!-- Order Details -->
@@ -105,23 +102,36 @@
                                                     <h1 class="c-length text-lg md:font-semibold line-clamp">
                                                         {{ $item->name }}</h1>
                                                     <p class="text-sm">Qty: {{ $item->quantity }}</p>
+                                                    @if ($item->variant_id)
+                                                        <p class="text-sm">Variant: {{ $item->variant_name }} -
+                                                            {{ $item->variant_value }}</p>
+                                                    @endif
                                                 </div>
                                             </td>
                                             <td class="text-right md:w-2/5 w-1/5">
                                                 <strong>
                                                     <span>Tk </span><span
-                                                        class="text-xl">{{ number_format($item->total) }}</span>
+                                                        class="text-xl">{{ number_format($item->total, 2) }}</span>
                                                 </strong>
                                             </td>
                                         </tr>
                                     @endforeach
+                                    <!-- Delivery Charge -->
+                                    <tr class="flex justify-between border-t border-dashed border-gray-400 py-2 px-2">
+                                        <td class="text-sm">ডেলিভারি চার্জ</td>
+                                        <td></td>
+                                        <td class="text-right text-xl">
+                                            <strong><span>Tk
+                                                </span><span>{{ number_format($order->delivery_charge, 2) }}</span></strong>
+                                        </td>
+                                    </tr>
                                     <!-- Total -->
                                     <tr class="flex justify-between border-t border-dashed border-gray-400 py-2 px-2">
                                         <td class="text-sm">টোটাল</td>
                                         <td></td>
                                         <td class="text-right text-xl">
                                             <strong><span>Tk
-                                                </span><span>{{ number_format($order->total_amount) }}</span></strong>
+                                                </span><span>{{ number_format($order->total_amount, 2) }}</span></strong>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -135,7 +145,11 @@
                     </div>
                 @else
                     <p class="text-gray-600 text-center">Order not found.</p>
-                    <a href="{{ route('home') }}" class="btn btn-primary mt-4 mx-auto block w-1/3">Continue Shopping</a>
+                    <div class="mt-6 text-center">
+                        <a href="{{ route('home') }}"
+                            class="btn btn-primary w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">Continue
+                            Shopping</a>
+                    </div>
                 @endif
             </div>
         </div>

@@ -77,14 +77,27 @@ class CartController extends Controller
             'cart_key' => 'required|string',
         ]);
 
+        \Log::info('Remove request received', [
+            'cart_key' => $request->cart_key,
+            'cart_state_before' => json_decode(Cookie::get('cart', '[]'), true),
+        ]);
+
         $cart = json_decode(Cookie::get('cart', '[]'), true);
 
         if (isset($cart[$request->cart_key])) {
             unset($cart[$request->cart_key]);
             Cookie::queue('cart', json_encode($cart), 43200);
+            \Log::info('Item removed from cart', [
+                'cart_key' => $request->cart_key,
+                'cart_state_after' => $cart,
+            ]);
             return redirect()->back()->with('success', 'Item removed from cart!');
         }
 
+        \Log::warning('Item not found in cart', [
+            'cart_key' => $request->cart_key,
+            'cart_state' => $cart,
+        ]);
         return redirect()->back()->with('error', 'Item not found in cart.');
     }
 
@@ -108,7 +121,7 @@ class CartController extends Controller
         }
 
         // Debug: Log cart data to verify
-        \Log::info('Cart data:', $validCart);
+        \Log::info('Cart dataa:', $validCart);
 
         return view('pages.cart', ['cart' => $validCart, 'total' => $total]);
     }

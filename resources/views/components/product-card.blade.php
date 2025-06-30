@@ -68,15 +68,7 @@
             @endif
             <button type="submit" class="btn border-0 btn-primary btn-sm w-full !rounded-none">Add To Cart</button>
         </form>
-        <form action="{{ route('cart.add') }}" method="post" class="w-full">
-            @csrf
-            <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <input type="hidden" name="quantity" value="1">
-            <input type="hidden" name="redirect_to_checkout" value="1">
-            @if ($variantId)
-                <input type="hidden" name="variant_id" value="{{ $variantId }}">
-            @endif
-            <button type="submit" class="btn border-0 btn-primary btn-sm w-full !rounded-none">Order Now</button>
-        </form>
+        <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $variantId]) }}"
+            class="btn border-0 btn-primary btn-sm w-full !rounded-none">Order Now </a>
     </div>
 </div>

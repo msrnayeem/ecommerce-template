@@ -35,10 +35,12 @@
                 <div class="text-center">
                     <p class="text-gray-600 text-lg mb-4">Your cart is empty.</p>
                     <a href="{{ route('home') }}"
-                        class="inline-block bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition">Continue
+                        class="inline-block bg-blue-600 text-black py-3 px-6 rounded-lg hover:bg-blue-700 transition">Continue
                         Shopping</a>
                 </div>
             @else
+                <!-- Debug: Display cart count -->
+                <p class="text-center text-gray-600 mb-4">Items in cart: {{ count($cart) }}</p>
                 <form action="{{ route('cart.index') }}" method="GET" id="cart-form">
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <div class="overflow-x-auto">
@@ -50,7 +52,7 @@
                                         <th class="py-4 px-6">Price</th>
                                         <th class="py-4 px-6 text-center">Quantity</th>
                                         <th class="py-4 px-6 text-center">Total</th>
-                                        <th class="py-4 px-6 text-center">Actions</th>
+                                        {{-- <th class="py-4 px-6 text-center">Actions</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,7 +71,8 @@
                                                         <h4 class="font-semibold text-gray-800">{{ $item['name'] }}</h4>
                                                         @if ($item['variant_id'])
                                                             <p class="text-sm text-gray-500">
-                                                                {{ $item['variant_name'] }}: {{ $item['variant_value'] }}
+                                                                {{ $item['variant_name'] ?? 'N/A' }}:
+                                                                {{ $item['variant_value'] ?? 'N/A' }}
                                                             </p>
                                                         @endif
                                                     </div>
@@ -99,7 +102,7 @@
                                                 <p class="font-semibold text-gray-800">Tk
                                                     {{ number_format($item['price'] * $item['quantity']) }}</p>
                                             </td>
-                                            <td class="py-4 px-6 text-center">
+                                            {{-- <td class="py-4 px-6 text-center">
                                                 <form action="{{ route('cart.remove') }}" method="POST"
                                                     class="inline-block">
                                                     @csrf
@@ -107,7 +110,7 @@
                                                     <button type="submit"
                                                         class="text-red-600 hover:text-red-800 transition">Remove</button>
                                                 </form>
-                                            </td>
+                                            </td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -124,7 +127,7 @@
                         </div>
                         <div class="p-6 flex justify-end m-4">
                             <button type="submit"
-                                class="bg-blue-600 text-black border border-blue-600 py-3 px-6 rounded-lg hover:bg-blue-700 hover:border-blue-700 shadow-md transition text-sm font-semibold uppercase">
+                                class="bg-blue-600 text-black  py-3 px-6 rounded-lg shadow-md transition text-sm font-semibold uppercase">
                                 Proceed to Checkout
                             </button>
                         </div>
