@@ -40,7 +40,7 @@
                     <p class="text-gray-600 text-center">Your cart is empty.</p>
                     <a href="{{ route('home') }}" class="btn btn-primary mt-4 mx-auto block w-1/3">Continue Shopping</a>
                 @else
-                    <form action="{{ route('cart.submit') }}" method="post">
+                    <form action="{{ route('cart.submit') }}" method="post" id="checkoutForm">
                         @csrf
                         <div class="flex mt-10 md:justify-center md:flex-row flex-col md:gap-20 form-inner-wrapper">
                             <div class="md:w-1/2 p-2 form-inner-left-part">
@@ -109,13 +109,19 @@
                                                         onclick="updateQuantity('{{ $item['id'] }}', -1)"
                                                         class="bg-gray-200 px-2 py-1 rounded">-</button>
                                                     <input type="number" id="quantity-{{ $item['id'] }}"
-                                                        name="quantity[{{ $item['id'] }}]"
+                                                        name="items[{{ $item['id'] }}][quantity]"
                                                         value="{{ $item['quantity'] }}" min="1"
                                                         class="border border-gray-300 p-1 w-16 text-center" readonly>
                                                     <button type="button"
                                                         onclick="updateQuantity('{{ $item['id'] }}', 1)"
                                                         class="bg-gray-200 px-2 py-1 rounded">+</button>
                                                 </div>
+                                                <input type="hidden" name="items[{{ $item['id'] }}][sku]"
+                                                    value="{{ $item['sku'] ?? 'N/A' }}">
+                                                <input type="hidden" name="items[{{ $item['id'] }}][variant_id]"
+                                                    value="{{ $item['variant_id'] ?? '' }}">
+                                                <input type="hidden" id="price-{{ $item['id'] }}"
+                                                    value="{{ $item['price'] }}">
                                                 <br>
                                                 <span>Price: Tk <span
                                                         id="unitPrice-{{ $item['id'] }}">{{ number_format($item['price']) }}</span></span><br>
@@ -133,7 +139,8 @@
                                     <tr>
                                         <td colspan="2" class="pt-4">
                                             <span>Delivery: Tk <span id="deliveryCharge">0</span></span><br>
-                                            <span>Total: Tk <span id="totalPrice">{{ number_format($total) }}</span></span>
+                                            <span>Total: Tk <span
+                                                    id="totalPrice">{{ number_format($total) }}</span></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -165,29 +172,60 @@
     </section>
 
     <script>
+        // Initialize delivery charge
         let deliveryCharge = 0;
 
-        function updatePrice() {
-            let subtotal = 0;
-            cart.forEach(item => {
-                const quantity = parseInt(document.getElementById('quantity-' + item.id).value) || item.quantity;
-                subtotal += item.price * quantity;
-            });
-            const total = subtotal + deliveryCharge;
+        // Update quantity and recalculate prices
+        function updateQuantity(productId, change) {
+            const quantityInput = document.getElementById(`quantity-${productId}`);
+            let quantity = parseInt(quantityInput.value) || 1;
+            quantity = Math.max(1, quantity + change); // Ensure quantity doesn't go below 1
+            quantityInput.value = quantity;
 
-            document.getElementById('subtotal-' + cart[0].id).textContent = (cart[0].price * parseInt(document
-                .getElementById('quantity-' + cart[0].id).value)).toLocaleString();
-            document.getElementById('totalPrice').textContent = total.toLocaleString();
-            document.getElementById('buttonTotal').textContent = total.toLocaleString();
+            // Update subtotal for this product
+            const price = parseFloat(document.getElementById(`price-${productId}`).value);
+            const subtotal = price * quantity;
+            document.getElementById(`subtotal-${productId}`).textContent = subtotal.toLocaleString('en-US', {
+                minimumFractionDigits: 0
+            });
+
+            // Update total price
+            updateTotalPrice();
         }
 
+        // Calculate and update total price
+        function updateTotalPrice() {
+            let totalSubtotal = 0;
+            // Iterate over all cart items to calculate total subtotal
+            document.querySelectorAll('input[name^="items["][name$="[quantity]"]').forEach(input => {
+                const productId = input.id.split('-')[1];
+                const quantity = parseInt(input.value) || 1;
+                const price = parseFloat(document.getElementById(`price-${productId}`).value);
+                totalSubtotal += price * quantity;
+            });
+
+            // Add delivery charge to total
+            const total = totalSubtotal + deliveryCharge;
+
+            // Update UI elements
+            document.getElementById('totalPrice').textContent = total.toLocaleString('en-US', {
+                minimumFractionDigits: 0
+            });
+            document.getElementById('buttonTotal').textContent = total.toLocaleString('en-US', {
+                minimumFractionDigits: 0
+            });
+        }
+
+        // Update delivery charge on selection
         document.getElementById('deliveryTitle').addEventListener('change', function() {
             deliveryCharge = parseInt(this.options[this.selectedIndex].getAttribute('data-charge')) || 0;
-            document.getElementById('deliveryCharge').textContent = deliveryCharge.toLocaleString();
-            updatePrice();
+            document.getElementById('deliveryCharge').textContent = deliveryCharge.toLocaleString('en-US', {
+                minimumFractionDigits: 0
+            });
+            updateTotalPrice(); // Recalculate total with new delivery charge
         });
 
-        // Initial price update
-        updatePrice();
+        // Initialize prices on page load
+        updateTotalPrice();
     </script>
 @endsection
