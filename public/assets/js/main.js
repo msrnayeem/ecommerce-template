@@ -433,8 +433,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     }).mount();
-  } else {
-    console.warn('Splide element not found: #splide01');
   }
 });
 
@@ -468,8 +466,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     mainSlider.sync(thumbnailSlider).mount();
-  } else {
-    console.warn("Slider elements not found.");
   }
 });
 
@@ -486,24 +482,27 @@ if ($('#banner-slider').length > 0) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    new Splide('#splide02', {
-        type: 'loop',
-        perPage: 4,
-        perMove: 1,
-        autoplay: true,
-        interval: 3000,
-        pauseOnHover: true,
-        pagination: true,
-        arrows: true,
-        breakpoints: {
-            768: {
-                perPage: 2,
-            },
-            480: {
-                perPage: 1,
-            },
+  var splideEl2 = document.querySelector('#splide02');
+  if (splideEl2) {
+    new Splide(splideEl2, {
+      type: 'loop',
+      perPage: 4,
+      perMove: 1,
+      autoplay: true,
+      interval: 3000,
+      pauseOnHover: true,
+      pagination: true,
+      arrows: true,
+      breakpoints: {
+        768: {
+          perPage: 2,
         },
+        480: {
+          perPage: 1,
+        },
+      },
     }).mount();
+  }
 });
 
 // Update main image and zoom image if the selected variation has an image
