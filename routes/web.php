@@ -20,7 +20,8 @@ Route::post('/cart/update', [CartController::class, 'update'])->name('cart.updat
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart', [CartController::class, 'cart'])->name('cart.cart');
 Route::get('/checkout', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/submit', [OrderController::class, 'store'])->name('cart.submit');
+
+Route::post('/cart/submit', [OrderController::class, 'orderSubmit'])->name('order.submit');
 
 Route::get('/order/{order_id}/invoice', [OrderController::class, 'invoice'])->name('order.invoice');
 

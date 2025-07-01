@@ -9,78 +9,127 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+
 
 class OrderController extends Controller
 {
-    public function store(Request $request)
+    public function orderSubmit(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
             'phone' => 'required|numeric|digits:11',
             'inset_address' => 'required|string|max:500',
             'deliveryTitle' => 'required|in:1,2',
             'payment_method' => 'required|in:Cash On Delivery,Bkash',
+            'items' => 'required|array',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.product_id' => 'required|uuid|exists:products,id',
+            'items.*.variant_id' => 'nullable|uuid|exists:product_variants,id',
         ]);
 
-        $cart = json_decode(Cookie::get('cart', '[]'), true);
-        $selectedProducts = session('selected_products', []);
-
-        if (empty($cart) || empty($selectedProducts)) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty or no items selected.');
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        // Filter cart to include only selected items
-        $selectedCart = [];
-        $total = 0;
-        foreach ($cart as $cartKey => $item) {
-            if (in_array($cartKey, $selectedProducts)) {
-                $selectedCart[$cartKey] = $item;
-                $total += $item['price'] * $item['quantity'];
+        // Extract customer information
+        $customerInfo = [
+            'name' => $request->input('name'),
+            'phone' => $request->input('phone'),
+            'address' => $request->input('inset_address'),
+            'delivery_title' => $request->input('deliveryTitle'),
+            'payment_method' => $request->input('payment_method'),
+        ];
+
+        // Extract delivery charge based on deliveryTitle
+        $deliveryCharge = $customerInfo['delivery_title'] == '1' ? 60 : 120;
+
+        // Extract cart items
+        $cartItems = $request->input('items');
+
+        // Process cart items
+        $orderItems = [];
+        $productPrice = 0;
+
+        foreach ($cartItems as $itemId => $item) {
+            // Fetch variant details (if variant_id exists)
+            $variant = $item['variant_id'] ? ProductVariant::where('id', $item['variant_id'])
+                ->where('product_id', $item['product_id'])
+                ->first() : null;
+
+            // Determine price (prefer discount_price if available, otherwise use price)
+            $price = $variant ? ($variant->discount_price ?? $variant->price) : 0;
+
+            if ($price > 0) {
+                $subtotal = $price * $item['quantity'];
+                $productPrice += $subtotal;
+
+                $orderItems[] = [
+                    'product_id' => $item['product_id'],
+                    'variant_id' => $item['variant_id'] ?? null,
+                    'name' => $variant ? $variant->variant_name : 'Unknown Product', // Adjust based on product name source
+                    'variant_name' => $variant ? $variant->variant_name : null,
+                    'variant_value' => $variant ? $variant->variant_value : null,
+                    'price' => $price,
+                    'quantity' => $item['quantity'],
+                    'total' => $subtotal,
+                ];
+            } else {
+                // Handle case where variant or price is not found
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Invalid product or variant price for item ID: ' . $itemId);
             }
         }
 
-        if (empty($selectedCart)) {
-            return redirect()->route('cart.index')->with('error', 'No valid items selected.');
-        }
+        // Calculate total amount (product price + delivery charge)
+        $totalAmount = $productPrice + $deliveryCharge;
 
-        // Create Order
+        // Create order in the database
         $order = Order::create([
-            'id' => (string) Str::uuid(),
-            'user_id' => auth()->id(),
-            'customer_name' => $request->name,
-            'customer_phone' => $request->phone,
-            'shipping_address' => $request->inset_address,
-            'shipping_method' => $request->deliveryTitle == '1' ? 'Inside Dhaka' : 'Outside Dhaka',
-            'total_amount' => $total,
-            'payment_method' => $request->payment_method,
-            'payment_status' => $request->payment_method == 'Cash On Delivery' ? 'unpaid' : 'pending',
-            'status' => 'pending',
+            'id' => Str::uuid(),
+            'customer_name' => $customerInfo['name'],
+            'customer_phone' => $customerInfo['phone'],
+            'customer_email' => null, // Not provided in form
+            'shipping_address' => $customerInfo['address'],
+            'shipping_method' => $customerInfo['delivery_title'] == '1' ? 'Inside Dhaka' : 'Outside Dhaka',
+            'order_notes' => null, // Not provided in form
+            'coupon' => null, // Not provided in form
             'shipping_status' => 'pending',
+            'status' => 'pending',
+            'delivery_charge' => $deliveryCharge,
+            'product_price' => $productPrice,
+            'total_amount' => $totalAmount,
+            'payment_method' => $customerInfo['payment_method'],
+            'payment_id' => null, // Not provided in form
+            'payment_status' => 'unpaid',
         ]);
 
-        // Create Order Items
-        foreach ($selectedCart as $cartKey => $item) {
+        // Attach items to the order
+        foreach ($orderItems as $item) {
             OrderItem::create([
-                'id' => (string) Str::uuid(),
+                'id' => Str::uuid(),
                 'order_id' => $order->id,
-                'product_id' => $item['id'],
+                'product_id' => $item['product_id'],
                 'variant_id' => $item['variant_id'],
-                'name' => $item['name'] . ($item['variant_id'] ? ' (' . $item['variant_name'] . ': ' . $item['variant_value'] . ')' : ''),
-                'sku' => $item['sku'],
+                'name' => $item['name'],
+                'sku' => null, // Not provided in form
+                'variant_name' => $item['variant_name'],
+                'variant_value' => $item['variant_value'],
                 'price' => $item['price'],
                 'quantity' => $item['quantity'],
-                'total' => $item['price'] * $item['quantity'],
+                'total' => $item['total'],
             ]);
         }
 
-        // Remove selected items from cart
-        foreach ($selectedProducts as $cartKey) {
-            unset($cart[$cartKey]);
-        }
-        Cookie::queue('cart', json_encode($cart), 43200);
-
         // Clear session
         session()->forget('selected_products');
+        Cookie::queue(Cookie::forget('cart'));
+        // Clear cart cookie
+        Cookie::queue('cart', json_encode([]), 43200); // Clear cart cookie
 
         // Redirect to checkout with order details
         return redirect()->route('order.success', ['order_id' => $order->id])
