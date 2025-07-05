@@ -122,12 +122,12 @@ public function buyNow($sku, $variant = null)
     public function show($sku)
     {
         $product = Product::where('sku', $sku)
-            ->with(['images', 'variants']) // Make sure to eager load variants too
+            ->with(['productImages', 'productVariants']) // Make sure to eager load variants too
             ->firstOrFail();
-
+        //dd($product);
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
-            ->with(['images' => function ($query) {
+            ->with(['productImages' => function ($query) {
                 $query->where('is_primary', true);
             }])
             ->take(4)

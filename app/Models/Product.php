@@ -2,29 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes;
-
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'id',
         'sku',
         'name',
         'description',
         'price',
-        'discount_price',
+        'stock',
         'category_id',
         'warranty',
         'visibility',
         'is_featured',
-        'created_by',
-        'updated_by',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'stock' => 'integer',
+        'is_featured' => 'boolean',
+        'visibility' => 'string',
     ];
 
     public function category()
@@ -32,56 +34,70 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function variants()
+    public function productVariants()
     {
         return $this->hasMany(ProductVariant::class);
     }
 
-    // FIXED: Return all images (product + variant)
-    public function images()
-    {
-        return $this->hasMany(ProductImage::class);
-    }
-
     public function productImages()
     {
-        return $this->hasMany(ProductImage::class)->whereNull('variant_id');
-    }
-
-    public function variantImages()
-    {
-        return $this->hasMany(ProductImage::class)->whereNotNull('variant_id');
-    }
-
-    public function allImages()
-    {
-        return $this->hasMany(ProductImage::class);
-    }
-
-    public function stocks()
-    {
-        return $this->hasMany(Stock::class);
+        return $this->morphMany(ProductImage::class, 'imageable');
     }
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->morphMany(OrderItem::class, 'orderable');
     }
 
-    public function createdBy()
+    // Check if product uses variant-specific pricing/stock
+    public function hasVariantPricing()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->productVariants()->whereNotNull('price')->orWhereNotNull('stock')->exists();
     }
 
-    public function updatedBy()
+    // Get price (from product variants or product table)
+    public function getEffectivePrice($variantValueIds = [])
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        if ($this->hasVariantPricing() && ! empty($variantValueIds)) {
+            $variant = $this->productVariants()
+                ->whereIn('variant_value_id', $variantValueIds)
+                ->first();
+
+            return $variant->price ?? $this->price;
+        }
+
+        return $this->price;
     }
 
-    public function offers()
+    // Get stock (from product variants or product table)
+    public function getEffectiveStock($variantValueIds = [])
     {
-        return $this->belongsToMany(Offer::class, 'offer_products')
-            ->withPivot('variant_id', 'offer_price')
-            ->withTimestamps();
+        if ($this->hasVariantPricing() && ! empty($variantValueIds)) {
+            $variant = $this->productVariants()
+                ->whereIn('variant_value_id', $variantValueIds)
+                ->first();
+
+            return $variant->stock ?? $this->stock;
+        }
+
+        return $this->stock;
+    }
+
+    // Scope to get low stock products
+    public function scopeLowStock($query, $threshold = 10)
+    {
+        return $query->where(function ($q) use ($threshold) {
+            // Case 1: Stock in products table
+            $q->whereNotNull('stock')
+                ->where('stock', '<=', $threshold)
+                ->whereDoesntHave('productVariants', function ($subQuery) {
+                    $subQuery->whereNotNull('stock');
+                })
+                ->orWhereHas('productVariants', function ($subQuery) use ($threshold) {
+                    // Case 2: Stock in product_variants table
+                    $subQuery->whereNotNull('stock')
+                        ->where('stock', '<=', $threshold);
+                });
+        })->with(['productVariants.variant', 'productVariants.variantValue', 'productImages']);
     }
 }

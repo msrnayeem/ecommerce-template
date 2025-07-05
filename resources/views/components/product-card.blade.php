@@ -1,6 +1,6 @@
 @php
-    if ($product->variants->count()) {
-        $lowestVariant = $product->variants
+    if ($product->productVariants->count()) {
+        $lowestVariant = $product->productVariants
             ->sortBy(function ($variant) {
                 return $variant->discount_price ?? $variant->price;
             })
@@ -35,12 +35,19 @@
                         <strong class="-ml-[2px]">TK Off</strong>
                     </strong>
                 @endif
-                <img src="{{ $product->images->first()->image_path ?? 'https://via.placeholder.com/150' }}"
+                @php
+                    $primaryImage = $product->productImages->first();
+                    $secondaryImage = $product->productImages->first();
+                @endphp
+
+                <img src="{{ $primaryImage ? asset('storage/' . $primaryImage->path) : 'https://via.placeholder.com/150' }}"
                     class="primary-img w-full h-full object-contain absolute inset-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
-                <img src="{{ $product->images->skip(1)->first()->image_path ?? ($product->images->first()->image_path ?? 'https://via.placeholder.com/150') }}"
+
+                <img src="{{ $secondaryImage ? asset('storage/' . $secondaryImage->path) : ($primaryImage ? asset('storage/' . $primaryImage->path) : 'https://via.placeholder.com/150') }}"
                     class="secondary-img w-full h-full object-contain absolute inset-0 opacity-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
+
             </div>
         </div>
         <div class="p-3">

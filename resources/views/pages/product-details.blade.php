@@ -30,7 +30,7 @@
                     <div id="main-slider" class="splide main-image">
                         <div class="splide__track">
                             <div class="splide__list" id="main-image-list">
-                                @forelse($product->images as $image)
+                                @forelse($product->productImages as $image)
                                     <div class="splide__slide imageZoom"
                                         data-variant-id="{{ $image->variant_id ?? 'none' }}">
                                         <div class="flexImg">
@@ -60,7 +60,7 @@
                     <div id="thumbnail-slider" class="splide mt-5">
                         <div class="splide__track">
                             <div class="splide__list" id="thumbnail-image-list">
-                                @forelse($product->images as $image)
+                                @forelse($product->productImages as $image)
                                     <div class="splide__slide" data-variant-id="{{ $image->variant_id ?? 'none' }}">
                                         <img src="{{ $image->image_path }}" alt="{{ $image->alt_text }}"
                                             class="main-image">
@@ -77,7 +77,7 @@
                 <!-- Hidden input to store all images data -->
                 <input type="hidden" id="product-images-data"
                     value="{{ json_encode(
-                        $product->images->map(function ($image) {
+                        $product->productImages->map(function ($image) {
                                 return [
                                     'id' => $image->id,
                                     'image_path' => $image->image_path,
@@ -127,8 +127,8 @@
                             <strong class="stx-product-details-product-price-title text-lg uppercase">PRICE:</strong>
                             <span class="text-lg md:text-xl ml-1 font-bold" id="display-price-wrap">
                                 @php
-                                    $hasVariants = $product->variants->count() > 0;
-                                    $firstVariant = $hasVariants ? $product->variants->first() : null;
+                                    $hasVariants = $product->productVariants->count() > 0;
+                                    $firstVariant = $hasVariants ? $product->productVariants->first() : null;
                                     $variantPrice = $firstVariant
                                         ? $firstVariant->discount_price ?? $firstVariant->price
                                         : null;
@@ -158,12 +158,12 @@
                             </span>
                         </div>
 
-                        @if ($product->variants->count())
+                        @if ($product->productVariants->count())
                             <div class="mb-4">
                                 <label for="variant-select" class="text-lg uppercase font-bold mb-1 block">Choose
                                     Variant:</label>
                                 <select id="variant-select" name="variant_id" class="border rounded p-2 w-full max-w-xs">
-                                    @foreach ($product->variants as $variant)
+                                    @foreach ($product->productVariants as $variant)
                                         <option value="{{ $variant->id }}"
                                             data-price="{{ $variant->discount_price ?? $variant->price }}"
                                             data-old-price="{{ $variant->price }}"
@@ -178,7 +178,7 @@
 
                         <strong class="stx-product-details-product-varations-container-4-item-title text-lg uppercase">
                             Status: <span class="text-success capitalize">
-                                @if ($product->stocks()->exists() && $product->stocks()->sum('quantity') > 0)
+                                @if ($product->getEffectiveStock() > 0)
                                     In Stock
                                 @else
                                     Out of Stock
@@ -209,16 +209,16 @@
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                                         <input type="hidden" name="quantity" id="cart-qty" value="1">
-                                        @if ($product->variants->count())
+                                        @if ($product->productVariants->count())
                                             <input type="hidden" name="variant_id" id="selected-variant-id"
-                                                value="{{ $product->variants->first()->id }}">
+                                                value="{{ $product->productVariants->first()->id }}">
                                         @endif
                                         <button type="submit" class="btn btn-success w-full submit-btn border-0">কার্ড এ
                                             যুক্ত করুন</button>
                                     </form>
                                     <!-- Order Now Button -->
-                                    @if ($product->variants->count())
-                                        <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->variants->first()->id]) }}"
+                                    @if ($product->productVariants->count())
+                                        <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->productVariants->first()->id]) }}"
                                             class="btn btn-success w-full submit-btn border-0">Order Now </a>
                                     @else
                                         <a href="{{ route('buy.now', $product->sku) }}"
@@ -406,9 +406,9 @@
                     displayPriceWrap.innerHTML = `
                         <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                         ${discount > 0 ? `
-                                                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                        ` : ''}
+                                                                                                        <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                                                        <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                                                    ` : ''}
                     `;
                 });
             }

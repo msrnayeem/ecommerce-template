@@ -2,30 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductImage extends Model
 {
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use HasFactory;
 
     protected $fillable = [
-        'id',
-        'product_id',
-        'variant_id',
-        'image_path',
-        'alt_text',
+        'imageable_id',
+        'imageable_type',
+        'path',
+        'caption',
         'is_primary',
-        'order',
     ];
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
+    protected $casts = [
+        'is_primary' => 'boolean',
+    ];
 
-    public function variant()
+    public function imageable()
     {
-        return $this->belongsTo(ProductVariant::class, 'variant_id');
+        return $this->morphTo();
     }
 }

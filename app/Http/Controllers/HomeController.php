@@ -22,24 +22,29 @@ class HomeController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->with([
-                'products.images',        // eager load all images
-                'products.variants',      // eager load variants if you want to show variant price
+                'products.images',    
+                'products.variants', 
             ])
             ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
 
-        // Fetch categories with products, eager load images and variants
+        // Fetch categories with products, eager load primary image and variants
         $categories = Category::whereHas('products', function ($query) {
             $query->where('visibility', 'public');
         })
             ->with([
-                'products.images',
-                'products.variants',
+                'products' => function ($query) {
+                    $query->where('visibility', 'public')->take(4); // Limit to 4 products per category
+                },
+                'products.productVariants',
+                'products.productImages' => function ($query) {
+                    $query->where('is_primary', true); 
+                },
             ])
             ->take(2)
             ->get();
-
+        //dd($categories);
         return view('pages.index', compact('banners', 'offers', 'categories'));
     }
 }

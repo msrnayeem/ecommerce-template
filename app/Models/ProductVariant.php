@@ -2,20 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
 {
-    protected $keyType = 'string';
-    public $incrementing = false;
+    use HasFactory;
 
     protected $fillable = [
-        'id',
         'product_id',
-        'variant_name',
-        'variant_value',
+        'variant_id',
+        'variant_value_id',
         'price',
-        'discount_price',
+        'stock',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'stock' => 'integer',
     ];
 
     public function product()
@@ -23,18 +27,23 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function stock()
+    public function variant()
     {
-        return $this->hasOne(Stock::class, 'variant_id');
+        return $this->belongsTo(Variant::class);
+    }
+
+    public function variantValue()
+    {
+        return $this->belongsTo(VariantValue::class);
+    }
+
+    public function productImages()
+    {
+        return $this->morphMany(ProductImage::class, 'imageable');
     }
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class, 'variant_id');
-    }
-
-    public function images()
-    {
-        return $this->hasMany(ProductImage::class, 'variant_id', 'id');
+        return $this->morphMany(OrderItem::class, 'orderable');
     }
 }

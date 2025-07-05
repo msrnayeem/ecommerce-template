@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Offer extends Model
@@ -41,7 +41,31 @@ class Offer extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'offer_products')
-            ->withPivot('variant_id', 'offer_price')
+            ->withPivot('product_variant_id', 'offer_price')
             ->withTimestamps();
+    }
+
+    public function productVariants()
+    {
+        return $this->belongsToMany(ProductVariant::class, 'offer_products', 'offer_id', 'product_variant_id')
+            ->withPivot('offer_price')
+            ->withTimestamps();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)
+            ->where('start_date', '<=', now())
+            ->where(function ($q) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now());
+            });
+    }
+
+    public function getIsCurrentlyActiveAttribute()
+    {
+        return $this->is_active && 
+               $this->start_date <= now() && 
+               ($this->end_date === null || $this->end_date >= now());
     }
 }

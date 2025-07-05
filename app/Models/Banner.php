@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 class Banner extends Model
 {
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
