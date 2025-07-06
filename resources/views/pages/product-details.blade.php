@@ -172,7 +172,7 @@
                                 </form>
                                 @if ($product->productVariants->count())
                                     <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->productVariants->first()->id]) }}"
-                                        class="btn btn-success w-full submit-btn border-0">Order Now</a>
+                                        class="btn btn-success w-full submit-btn border-0">Order Noww</a>
                                 @else
                                     <a href="{{ route('buy.now', $product->sku) }}"
                                         class="btn btn-success w-full submit-btn border-0">Order Now</a>
@@ -310,9 +310,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                        ` : ''}
+                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                            ` : ''}
                 `;
 
                 // Update status text with new stock

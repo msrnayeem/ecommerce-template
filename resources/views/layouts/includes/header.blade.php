@@ -55,13 +55,13 @@
                             <div tabindex="0" class="m-1 text-black cursor-pointer flex items-center">
                                 <i class="bi bi-person md:text-2xl text-xl text-black cursor-pointer mr-2"
                                     style="color:black"></i>
-                                <span class="md:block hidden" style="color:black">Login / Sign In
+                                <span class="md:block hidden" style="color:black">Track Order
                                     <i class="bi bi-chevron-down" style="color:black"></i>
                                 </span>
                             </div>
                             <div tabindex="0"
                                 class="md:p-6 p-3 shadow-lg menu dropdown-content bg-base-100 rounded-box w-[280px] md:w-80 text-black z-50">
-                                <h2 class="text-center text-xl font-bold text-black mb-3 w-full">Login to my account
+                                {{-- <h2 class="text-center text-xl font-bold text-black mb-3 w-full">Login to my account
                                 </h2>
                                 <form method="POST" action="#" class="pure-form small-form">
                                     <div class="form-control mb-4">
@@ -83,7 +83,7 @@
                                 </p>
                                 <p class="mt-1 text-sm">Lost password? <a href="users/forgetPassword.html"
                                         class="text-black">Reset account</a>
-                                </p>
+                                </p> --}}
                                 <h3 class="mt-3 text-center">Order Tracking</h3>
                                 <form method="get" action="#">
                                     <div class="form-control mb-2">
