@@ -129,7 +129,7 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-         //dd($product);
+        // dd($product);
         return view('pages.product-details', compact('product', 'relatedProducts'));
     }
 

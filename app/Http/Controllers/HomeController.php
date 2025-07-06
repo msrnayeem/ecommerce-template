@@ -45,7 +45,7 @@ class HomeController extends Controller
             ->take(2)
             ->get();
 
-        //dd($categories);
+        // dd($categories);
         return view('pages.index', compact('banners', 'offers', 'indexCategories'));
     }
 }
