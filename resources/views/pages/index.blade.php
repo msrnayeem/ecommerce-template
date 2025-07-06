@@ -3,6 +3,11 @@
 
 @section('content')
     <!-- Banner Section -->
+    @php
+        $imageUrl = env('IMAGE_LINK', 'http://localhost:8000');
+
+    @endphp
+
     <div class="banner-section">
         <div class="container">
             <div id="banner-slider" class="splide">
@@ -11,8 +16,9 @@
                         @foreach ($banners as $banner)
                             <li class="splide__slide">
                                 <a href="{{ $banner->link ?? '#' }}">
-                                    <img src="{{ $banner->image }}" alt="{{ $banner->alt_text ?? 'Banner' }}"
-                                        class="w-full object-cover" style="height: 400px;">
+                                    <img src="{{ $imageUrl . '/storage/' . $banner->image }}"
+                                        alt="{{ $banner->title ?? 'Banner' }}" class="w-full object-cover"
+                                        style="height: 400px;">
                                 </a>
                             </li>
                         @endforeach
@@ -21,6 +27,8 @@
             </div>
         </div>
     </div>
+
+
 
     <!-- Offer Sections -->
     @forelse ($offers as $offer)

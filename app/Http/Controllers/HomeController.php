@@ -15,6 +15,8 @@ class HomeController extends Controller
             ->orderBy('serial_no')
             ->get();
 
+        // dd($banners);
+
         // Fetch offer products for multiple offer sections, eager load images and variants
         $offers = Offer::where('is_active', true)
             ->where(function ($query) {
