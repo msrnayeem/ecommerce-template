@@ -20,6 +20,7 @@ class Product extends Model
         'warranty',
         'visibility',
         'is_featured',
+        'has_variant',
     ];
 
     protected $casts = [
@@ -37,6 +38,11 @@ class Product extends Model
     public function productVariants()
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    public function hasVariants()
+    {
+        return $this->has_variant || $this->productVariants()->exists();
     }
 
     public function productImages()

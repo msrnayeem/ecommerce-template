@@ -27,10 +27,12 @@
             </div>
 
             <div id="checkout-form-wrapper">
-                <form action="{{ route('order.now') }}" method="post">
+                <form action="{{ route('order.submit') }}" method="post">
                     @csrf
-                    <input type="hidden" name="sku" value="{{ $cart[0]['sku'] ?? '' }}">
-                    <input type="hidden" name="variant_id" value="{{ $cart[0]['variant_id'] ?? '' }}">
+                    <input type="hidden" name="items[0][product_id]" value="{{ $product->id }}">
+                    <input type="hidden" name="items[0][variant_id]" value="{{ $cart[0]['variant_id'] ?? '' }}">
+                    <input type="hidden" id="cart-quantity" name="items[0][quantity]" value="1">
+
                     <div class="flex mt-10 md:justify-center md:flex-row flex-col md:gap-20 form-inner-wrapper">
                         <div class="md:w-1/2 p-2 form-inner-left-part">
                             <div class="mb-5">
@@ -73,12 +75,12 @@
                                     </td>
                                     <td class="pl-4">
                                         <strong>{{ $cart[0]['name'] }}</strong><br>
-                                        SKU: {{ $cart[0]['sku'] ?? 'N/A' }}</span><br>
+                                        SKU: {{ $cart[0]['sku'] ?? 'N/A' }}<br>
                                         @if ($cart[0]['variant_id'])
-                                            <span>Varaint: {{ $cart[0]['variant_value'] }} </span> </br>
+                                            <span>Variant: {{ $cart[0]['variant_name'] ?? '-' }} </span> <br>
                                         @endif
                                         Qty:
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2 mt-1">
                                             <button type="button" onclick="updateQuantity(-1)"
                                                 class="bg-gray-200 px-2 py-1 rounded">-</button>
                                             <input type="number" id="quantity" name="quantity" value="1"
@@ -88,20 +90,15 @@
                                         </div>
                                         <br>
                                         <span>Price: Tk <span
-                                                id="unitPrice">{{ number_format($cart[0]['price']) }}</span></span>
-                                        <br>
+                                                id="unitPrice">{{ number_format($cart[0]['price']) }}</span></span><br>
                                         <span>Subtotal: Tk <span
-                                                id="subtotal">{{ number_format($cart[0]['price']) }}</span></span>
-                                        <br>
-                                        <span>Delivery: Tk <span id="deliveryCharge">0</span></span>
-                                        <br>
+                                                id="subtotal">{{ number_format($cart[0]['price']) }}</span></span><br>
+                                        <span>Delivery: Tk <span id="deliveryCharge">0</span></span><br>
                                         <span>Total: Tk <span
                                                 id="totalPrice">{{ number_format($cart[0]['price']) }}</span></span>
                                     </td>
                                 </tr>
                             </table>
-
-
 
                             <div class="mt-6">
                                 <label class="flex items-center gap-2">
@@ -135,6 +132,7 @@
         function updateQuantity(change) {
             quantity = Math.max(1, quantity + change);
             document.getElementById('quantity').value = quantity;
+            document.getElementById('cart-quantity').value = quantity;
             updatePrice();
         }
 
@@ -153,7 +151,6 @@
             updatePrice();
         });
 
-        // Initial price update
         updatePrice();
     </script>
 @endsection

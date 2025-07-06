@@ -37,6 +37,11 @@ class ProductVariant extends Model
         return $this->belongsTo(VariantValue::class);
     }
 
+    public function getDisplayNameAttribute()
+    {
+        return $this->product->name.' - '.$this->variantValue->name;
+    }
+
     public function productImages()
     {
         return $this->morphMany(ProductImage::class, 'imageable');
