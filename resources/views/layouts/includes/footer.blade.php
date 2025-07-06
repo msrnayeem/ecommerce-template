@@ -8,7 +8,7 @@
                 <!-- footer Logo -->
                 <div class="logo-wrap mb-5">
                     <a class="" href="/">
-                        <img src="assets/images/logo.png" alt="footerLogo" style="max-width: 70px;">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="footerLogo" style="max-width: 70px;">
                     </a>
                 </div>
 

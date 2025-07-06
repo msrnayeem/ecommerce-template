@@ -9,7 +9,7 @@
         $variantStock = $hasVariants && $firstVariant ? $firstVariant->stock : null;
         $productPrice = !$hasVariants ? $product->discount_price ?? $product->price : null;
         $productStock = !$hasVariants ? $product->stock : null;
-        $currentDateTime = now()->setTimezone('Asia/Dhaka')->format('h:i A +06, l, F d, Y'); // 01:14 PM +06, Sunday, July 06, 2025
+        $currentDateTime = now()->setTimezone('Asia/Dhaka')->format('h:i A +06, l, F d, Y');
     @endphp
 
     <div class="breadcrumb bg-bgPrimary py-4">
@@ -127,7 +127,7 @@
                                             data-price="{{ $variant->discount_price ?? $variant->price }}"
                                             data-old-price="{{ $variant->price }}"
                                             data-discount="{{ $variant->discount_price ? number_format($variant->price - $variant->discount_price) : 0 }}"
-                                            data-stock="{{ $variant->stock }}">
+                                            data-stock="{{ $variant->stock }}" data-variant-id="{{ $variant->id }}">
                                             {{ $variant->variantValue->name ?? 'Variant' }} (Tk
                                             {{ number_format($variant->discount_price ?? $variant->price) }})
                                         </option>
@@ -170,13 +170,8 @@
                                     <button type="submit" class="btn btn-success w-full submit-btn border-0">কার্ড এ
                                         যুক্ত করুন</button>
                                 </form>
-                                @if ($product->productVariants->count())
-                                    <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->productVariants->first()->id]) }}"
-                                        class="btn btn-success w-full submit-btn border-0">Order Noww</a>
-                                @else
-                                    <a href="{{ route('buy.now', $product->sku) }}"
-                                        class="btn btn-success w-full submit-btn border-0">Order Now</a>
-                                @endif
+                                <a href="#" id="buy-now-link"
+                                    class="btn btn-success w-full submit-btn border-0">Order Now</a>
                             </div>
                             <!-- Action Buttons -->
                             <a href="tel:01516137894" id="product-details-call-now-button"
@@ -235,6 +230,7 @@
         const statusText = document.getElementById('status-text');
         const qtyInput = document.getElementById('qty');
         const cartQtyInput = document.getElementById('cart-qty');
+        const buyNowLink = document.getElementById('buy-now-link');
 
         function changeImage(direction) {
             currentIndex += direction;
@@ -306,13 +302,14 @@
                 const oldPrice = selectedOption.dataset.oldPrice;
                 const discount = selectedOption.dataset.discount;
                 const stock = selectedOption.dataset.stock;
+                const variantId = selectedOption.dataset.variantId;
 
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                            ` : ''}
+                                        <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                        <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                    ` : ''}
                 `;
 
                 // Update status text with new stock
@@ -325,6 +322,15 @@
                 if (parseInt(qtyInput.value) > stock) {
                     qtyInput.value = stock;
                     cartQtyInput.value = stock;
+                }
+
+                // Update Buy Now link
+                if (variantId) {
+                    buyNowLink.href =
+                        `{{ route('buy.now', ['sku' => $product->sku, 'variant' => '__VARIANT_ID__']) }}`.replace(
+                            '__VARIANT_ID__', variantId);
+                } else {
+                    buyNowLink.href = `{{ route('buy.now', $product->sku) }}`;
                 }
             });
         }
