@@ -8,69 +8,44 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+   
+// ['productImages', 'productVariants']
+// // Fetch the category by slug
+        // $category = Category::where('slug', $slug)->firstOrFail();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
+        // // Fetch products in this category with pagination
+        // $products = Product::where('category_id', $category->id)
+        //     ->with(['productImages' => function ($query) {
+        //         $query->where('is_primary', true);
+        //     }])
+        //     ->paginate(8); // Paginate 8 products per page
     /**
      * Display the specified resource.
      */
-    public function show($slug)
-    {
-        // Fetch the category by slug
-        $category = Category::where('slug', $slug)->firstOrFail();
-
-        // Fetch products in this category with pagination
-        $products = Product::where('category_id', $category->id)
-            ->with(['images' => function ($query) {
+ public function show($slug)
+{
+    $indexCategory = Category::where('slug', $slug)
+        ->with([
+            'products' => function ($query) {
+                $query->where('visibility', 'public')->take(4);
+            },
+            'products.productVariants',
+            'products.productImages' => function ($query) {
                 $query->where('is_primary', true);
-            }])
-            ->paginate(8); // Paginate 8 products per page
+            },
+            'children.products' => function ($query) {
+                $query->where('visibility', 'public')->take(4);
+            },
+            'children.products.productVariants',
+            'children.products.productImages' => function ($query) {
+                $query->where('is_primary', true);
+            },
+        ])
+        ->first();
 
-        return view('pages.categories', compact('category', 'products'));
-    }
+    return view('pages.categories', compact('indexCategory'));
+}
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Category $category)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Category $category)
-    {
-        //
-    }
 }
