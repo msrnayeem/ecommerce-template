@@ -17,7 +17,7 @@ class CartController extends Controller
             'variant_id' => 'nullable|exists:product_variants,id',
         ]);
 
-        $product = Product::with(['images', 'variants'])->findOrFail($request->product_id);
+        $product = Product::with(['productImages', 'productVariants'])->findOrFail($request->product_id);
         $variant = $request->variant_id ? ProductVariant::findOrFail($request->variant_id) : null;
 
         $cart = json_decode(Cookie::get('cart', '[]'), true);
@@ -30,7 +30,7 @@ class CartController extends Controller
             'sku' => $product->sku,
             'price' => $variant ? ($variant->discount_price ?? $variant->price) : ($product->discount_price ?? $product->price),
             'original_price' => $variant ? $variant->price : $product->price,
-            'image' => $product->images->first()?->image_path ?? 'https://via.placeholder.com/150',
+            'image' => $product->productImages->first()?->image_path ?? 'https://via.placeholder.com/150',
             'quantity' => $request->quantity,
             'variant_id' => $variant?->id,
             'variant_name' => $variant?->variant_name,

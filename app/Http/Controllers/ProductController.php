@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -19,50 +18,40 @@ class ProductController extends Controller
             'deliveryTitle' => 'required|in:1,2',
             'quantity' => 'required|integer|min:1',
             'sku' => 'required|string|max:50',
-            'variant_id' => 'nullable|uuid|exists:product_variants,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'payment_method' => 'required|in:Cash On Delivery,Bkash',
         ]);
 
-        // Calculate delivery charge
         $deliveryCharge = $validated['deliveryTitle'] == '1' ? 60 : 120;
 
-        // Fetch product details
         $product = Product::with('variants')->where('sku', $validated['sku'])->firstOrFail();
-        $variant_info = $validated['variant_id'] ? $product->variants->firstWhere('id', $validated['variant_id']) : null;
+        $variant = $validated['variant_id'] ? $product->variants->firstWhere('id', $validated['variant_id']) : null;
 
-        // Calculate price
-        $unitPrice = $variant_info ? ($variant_info->discount_price ?? $variant_info->price) : ($product->discount_price ?? $product->price);
+        $unitPrice = $variant ? ($variant->price ?? 0) : ($product->price ?? 0);
         $subtotal = $unitPrice * $validated['quantity'];
         $total = $subtotal + $deliveryCharge;
 
-        // Create order
         $order = Order::create([
-            'id' => (string) Str::uuid(),
-            'user_id' => auth()->id() ?? null,
+            'user_id' => auth()->id(),
             'customer_name' => $validated['name'],
             'customer_phone' => $validated['phone'],
             'shipping_address' => $validated['inset_address'],
             'shipping_method' => $validated['deliveryTitle'] == '1' ? 'Inside Dhaka' : 'Outside Dhaka',
-            'product_price' => $unitPrice,
             'delivery_charge' => $deliveryCharge,
             'total_amount' => $total,
             'payment_method' => $validated['payment_method'],
-            'payment_status' => $validated['payment_method'] == 'Cash On Delivery' ? 'unpaid' : 'pending',
+            'payment_status' => $validated['payment_method'] === 'Cash On Delivery' ? 'unpaid' : 'pending',
             'status' => 'pending',
             'shipping_status' => 'pending',
         ]);
 
-        // Create order item
         OrderItem::create([
-            'id' => (string) Str::uuid(),
             'order_id' => $order->id,
-            'product_id' => $product->id,
-            'variant_id' => $validated['variant_id'],
+            'orderable_type' => $variant ? \App\Models\ProductVariant::class : \App\Models\Product::class,
+            'orderable_id' => $variant ? $variant->id : $product->id,
             'name' => $product->name,
-            'sku' => $validated['sku'],
-            'variant_name' => $variant_info?->variant_name,
-            'variant_value' => $variant_info?->variant_value,
-            'price' => $unitPrice,
+            'sku' => $product->sku,
+            'unit_price' => $unitPrice,
             'quantity' => $validated['quantity'],
             'total' => $subtotal,
         ]);

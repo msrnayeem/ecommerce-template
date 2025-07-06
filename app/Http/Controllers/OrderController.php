@@ -9,13 +9,11 @@ use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
     public function orderSubmit(Request $request)
     {
-        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100',
             'phone' => 'required|numeric|digits:11',
@@ -24,17 +22,14 @@ class OrderController extends Controller
             'payment_method' => 'required|in:Cash On Delivery,Bkash',
             'items' => 'required|array',
             'items.*.quantity' => 'required|integer|min:1',
-            'items.*.product_id' => 'required|uuid|exists:products,id',
-            'items.*.variant_id' => 'nullable|uuid|exists:product_variants,id',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.variant_id' => 'nullable|exists:product_variants,id',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Extract customer information
         $customerInfo = [
             'name' => $request->input('name'),
             'phone' => $request->input('phone'),
@@ -43,94 +38,64 @@ class OrderController extends Controller
             'payment_method' => $request->input('payment_method'),
         ];
 
-        // Extract delivery charge based on deliveryTitle
         $deliveryCharge = $customerInfo['delivery_title'] == '1' ? 60 : 120;
 
-        // Extract cart items
         $cartItems = $request->input('items');
-
-        // Process cart items
         $orderItems = [];
         $productPrice = 0;
 
-        foreach ($cartItems as $itemId => $item) {
-            // Fetch variant details (if variant_id exists)
-            $variant = $item['variant_id'] ? ProductVariant::where('id', $item['variant_id'])
-                ->where('product_id', $item['product_id'])
-                ->first() : null;
+        foreach ($cartItems as $item) {
+            $product = Product::findOrFail($item['product_id']);
+            $variant = $item['variant_id'] ? ProductVariant::where('id', $item['variant_id'])->where('product_id', $product->id)->first() : null;
 
-            // Determine price (prefer discount_price if available, otherwise use price)
-            $price = $variant ? ($variant->discount_price ?? $variant->price) : 0;
+            $price = $variant ? ($variant->price ?? 0) : ($product->price ?? 0);
+            $subtotal = $price * $item['quantity'];
+            $productPrice += $subtotal;
 
-            if ($price > 0) {
-                $subtotal = $price * $item['quantity'];
-                $productPrice += $subtotal;
-
-                $orderItems[] = [
-                    'product_id' => $item['product_id'],
-                    'variant_id' => $item['variant_id'] ?? null,
-                    'name' => $variant ? $variant->variant_name : 'Unknown Product', // Adjust based on product name source
-                    'variant_name' => $variant ? $variant->variant_name : null,
-                    'variant_value' => $variant ? $variant->variant_value : null,
-                    'price' => $price,
-                    'quantity' => $item['quantity'],
-                    'total' => $subtotal,
-                ];
-            } else {
-                // Handle case where variant or price is not found
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Invalid product or variant price for item ID: '.$itemId);
-            }
+            $orderItems[] = [
+                'orderable_type' => $variant ? ProductVariant::class : Product::class,
+                'orderable_id' => $variant ? $variant->id : $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'unit_price' => $price,
+                'quantity' => $item['quantity'],
+                'total' => $subtotal,
+            ];
         }
 
-        // Calculate total amount (product price + delivery charge)
         $totalAmount = $productPrice + $deliveryCharge;
 
-        // Create order in the database
         $order = Order::create([
-            'id' => Str::uuid(),
+            'user_id' => auth()->id(),
             'customer_name' => $customerInfo['name'],
             'customer_phone' => $customerInfo['phone'],
-            'customer_email' => null, // Not provided in form
             'shipping_address' => $customerInfo['address'],
             'shipping_method' => $customerInfo['delivery_title'] == '1' ? 'Inside Dhaka' : 'Outside Dhaka',
-            'order_notes' => null, // Not provided in form
-            'coupon' => null, // Not provided in form
-            'shipping_status' => 'pending',
-            'status' => 'pending',
             'delivery_charge' => $deliveryCharge,
-            'product_price' => $productPrice,
             'total_amount' => $totalAmount,
             'payment_method' => $customerInfo['payment_method'],
-            'payment_id' => null, // Not provided in form
+            'status' => 'pending',
+            'shipping_status' => 'pending',
             'payment_status' => 'unpaid',
         ]);
 
-        // Attach items to the order
         foreach ($orderItems as $item) {
             OrderItem::create([
-                'id' => Str::uuid(),
                 'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'variant_id' => $item['variant_id'],
+                'orderable_type' => $item['orderable_type'],
+                'orderable_id' => $item['orderable_id'],
                 'name' => $item['name'],
-                'sku' => null, // Not provided in form
-                'variant_name' => $item['variant_name'],
-                'variant_value' => $item['variant_value'],
-                'price' => $item['price'],
+                'sku' => $item['sku'],
+                'unit_price' => $item['unit_price'],
                 'quantity' => $item['quantity'],
                 'total' => $item['total'],
             ]);
         }
 
-        // Clear session
         session()->forget('selected_products');
         Cookie::queue(Cookie::forget('cart'));
-        // Clear cart cookie
-        Cookie::queue('cart', json_encode([]), 43200); // Clear cart cookie
+        Cookie::queue('cart', json_encode([]), 43200);
 
-        // Redirect to checkout with order details
         return redirect()->route('order.success', ['order_id' => $order->id])
             ->with('success', 'Order placed successfully! Your order ID is '.$order->id);
     }

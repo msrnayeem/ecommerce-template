@@ -26,6 +26,15 @@
             </div>
 
             <div id="checkout-form-wrapper">
+                @if ($errors->any())
+                    <div class="alert alert-danger mb-4">
+                        <ul class="list-disc list-inside text-red-600">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 @if (session('success'))
                     <div class="alert alert-success mb-4 text-center">
                         {{ session('success') }}
@@ -48,7 +57,8 @@
                                     <label class="block mb-2 font-medium">আপনার নাম <span
                                             class="text-red-500">*</span></label>
                                     <input type="text" name="name"
-                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg" required>
+                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg"
+                                        value="{{ old('name') }}" required>
                                     @error('name')
                                         <p class="text-red-500 p-2 bg-slate-100 mt-1">{{ $message }}</p>
                                     @enderror
@@ -58,7 +68,8 @@
                                     <label class="block mb-2 font-medium">মোবাইল নাম্বার <span
                                             class="text-red-500">*</span></label>
                                     <input type="number" name="phone" maxlength="11"
-                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg" required>
+                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg"
+                                        value="{{ old('phone') }}" required>
                                     @error('phone')
                                         <p class="text-red-500 p-2 bg-slate-100 mt-1">{{ $message }}</p>
                                     @enderror
@@ -68,7 +79,8 @@
                                     <label class="block mb-2 font-medium">ঠিকানা <span class="text-red-500">*</span></label>
                                     <input type="text" name="inset_address"
                                         placeholder="হাউস নাম্বার, রোড, ইউনিট/ফ্ল্যাট, পোস্ট কোড, জেলা"
-                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg" required>
+                                        class="w-full border border-gray-300 p-2 rounded custom-checkout-bg"
+                                        value="{{ old('inset_address') }}" required>
                                     @error('inset_address')
                                         <p class="text-red-500 p-2 bg-slate-100 mt-1">{{ $message }}</p>
                                     @enderror
@@ -80,8 +92,14 @@
                                     <select name="deliveryTitle" id="deliveryTitle"
                                         class="w-full border border-gray-300 p-2 rounded custom-checkout-bg" required>
                                         <option value="">সিলেক্ট করুন</option>
-                                        <option value="1" data-charge="60">ঢাকা সিটির মধ্যে</option>
-                                        <option value="2" data-charge="120">ঢাকা সিটির বাহিরে</option>
+                                        <option value="1" data-charge="60"
+                                            {{ old('deliveryTitle') == '1' ? 'selected' : '' }}>
+                                            ঢাকা সিটির মধ্যে
+                                        </option>
+                                        <option value="2" data-charge="120"
+                                            {{ old('deliveryTitle') == '2' ? 'selected' : '' }}>
+                                            ঢাকা সিটির বাহিরে
+                                        </option>
                                     </select>
                                     @error('deliveryTitle')
                                         <p class="text-red-500 p-2 bg-slate-100 mt-1">{{ $message }}</p>
@@ -110,17 +128,16 @@
                                                         class="bg-gray-200 px-2 py-1 rounded">-</button>
                                                     <input type="number" class="quantity-input"
                                                         name="items[{{ $item['id'] }}][quantity]"
-                                                        value="{{ $item['quantity'] }}" min="1"
-                                                        data-id="{{ $item['id'] }}"
-                                                        class="border border-gray-300 p-1 w-16 text-center" readonly>
+                                                        value="{{ old('items.' . $item['id'] . '.quantity', $item['quantity']) }}"
+                                                        min="1" data-id="{{ $item['id'] }}" readonly>
                                                     <button type="button"
                                                         onclick="updateQuantity('{{ $item['id'] }}', 1)"
                                                         class="bg-gray-200 px-2 py-1 rounded">+</button>
                                                 </div>
                                                 <input type="hidden" name="items[{{ $item['id'] }}][product_id]"
-                                                    value="{{ $item['id'] }}">
+                                                    value="{{ old('items.' . $item['id'] . '.product_id', $item['id']) }}">
                                                 <input type="hidden" name="items[{{ $item['id'] }}][variant_id]"
-                                                    value="{{ $item['variant_id'] ?? '' }}">
+                                                    value="{{ old('items.' . $item['id'] . '.variant_id', $item['variant_id'] ?? '') }}">
                                                 <input type="hidden" class="price-input" data-id="{{ $item['id'] }}"
                                                     value="{{ $item['price'] }}">
                                                 <br>
@@ -142,11 +159,13 @@
 
                                 <div class="mt-6">
                                     <label class="flex items-center gap-2">
-                                        <input type="radio" name="payment_method" value="Cash On Delivery" checked>
+                                        <input type="radio" name="payment_method" value="Cash On Delivery"
+                                            {{ old('payment_method', 'Cash On Delivery') == 'Cash On Delivery' ? 'checked' : '' }}>
                                         Cash On Delivery
                                     </label>
                                     <label class="flex items-center gap-2 mt-2">
-                                        <input type="radio" name="payment_method" value="Bkash">
+                                        <input type="radio" name="payment_method" value="Bkash"
+                                            {{ old('payment_method') == 'Bkash' ? 'checked' : '' }}>
                                         Bkash
                                     </label>
                                 </div>
@@ -167,17 +186,14 @@
     </section>
 
     <script>
-        // Initialize delivery charge
         let deliveryCharge = 0;
 
-        // Update quantity and recalculate prices
         function updateQuantity(productId, change) {
             const quantityInput = document.querySelector(`.quantity-input[data-id="${productId}"]`);
             let quantity = parseInt(quantityInput.value) || 1;
-            quantity = Math.max(1, quantity + change); // Ensure quantity doesn't go below 1
+            quantity = Math.max(1, quantity + change);
             quantityInput.value = quantity;
 
-            // Update subtotal for this product
             const priceInput = document.querySelector(`.price-input[data-id="${productId}"]`);
             const price = parseFloat(priceInput.value);
             const subtotal = price * quantity;
@@ -186,14 +202,11 @@
                 minimumFractionDigits: 0
             });
 
-            // Update total price
             updateTotalPrice();
         }
 
-        // Calculate and update total price
         function updateTotalPrice() {
             let totalSubtotal = 0;
-            // Iterate over all cart items to calculate total subtotal
             const quantityInputs = document.querySelectorAll('.quantity-input');
             quantityInputs.forEach(input => {
                 const productId = input.getAttribute('data-id');
@@ -203,10 +216,8 @@
                 totalSubtotal += price * quantity;
             });
 
-            // Add delivery charge to total
             const total = totalSubtotal + deliveryCharge;
 
-            // Update UI elements
             document.querySelector('.total-price').textContent = total.toLocaleString('en-US', {
                 minimumFractionDigits: 0
             });
@@ -215,16 +226,14 @@
             });
         }
 
-        // Update delivery charge on selection
         document.getElementById('deliveryTitle').addEventListener('change', function() {
             deliveryCharge = parseInt(this.options[this.selectedIndex].getAttribute('data-charge')) || 0;
             document.querySelector('.delivery-charge').textContent = deliveryCharge.toLocaleString('en-US', {
                 minimumFractionDigits: 0
             });
-            updateTotalPrice(); // Recalculate total with new delivery charge
+            updateTotalPrice();
         });
 
-        // Initialize prices on page load
         updateTotalPrice();
     </script>
 @endsection
