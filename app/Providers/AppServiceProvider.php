@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Models\Category;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::share('cartItemCount', function () {
             $cart = json_decode(Cookie::get('cart', '[]'), true);
+
             return array_sum(array_column($cart, 'quantity'));
         });
     }

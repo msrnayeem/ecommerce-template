@@ -22,7 +22,7 @@ class CartController extends Controller
 
         $cart = json_decode(Cookie::get('cart', '[]'), true);
 
-        $cartKey = $variant ? $product->id . '_' . $variant->id : $product->id;
+        $cartKey = $variant ? $product->id.'_'.$variant->id : $product->id;
 
         $cartItem = [
             'id' => $product->id,
@@ -65,6 +65,7 @@ class CartController extends Controller
                 $cart[$request->cart_key]['quantity'] = $newQuantity;
             }
             Cookie::queue('cart', json_encode($cart), 43200);
+
             return response()->json(['success' => true]);
         }
 
@@ -91,6 +92,7 @@ class CartController extends Controller
                 'cart_key' => $request->cart_key,
                 'cart_state_after' => $cart,
             ]);
+
             return redirect()->back()->with('success', 'Item removed from cart!');
         }
 
@@ -98,6 +100,7 @@ class CartController extends Controller
             'cart_key' => $request->cart_key,
             'cart_state' => $cart,
         ]);
+
         return redirect()->back()->with('error', 'Item not found in cart.');
     }
 
@@ -110,7 +113,7 @@ class CartController extends Controller
         foreach ($cart as $cartKey => $item) {
             $product = Product::find($item['id']);
             $variant = $item['variant_id'] ? ProductVariant::find($item['variant_id']) : null;
-            if ($product && !$product->trashed() && (!$item['variant_id'] || ($variant && $variant->product_id === $product->id))) {
+            if ($product && ! $product->trashed() && (! $item['variant_id'] || ($variant && $variant->product_id === $product->id))) {
                 $validCart[$cartKey] = $item;
                 $total += $item['price'] * $item['quantity'];
             }
@@ -131,7 +134,7 @@ class CartController extends Controller
         $cart = json_decode(Cookie::get('cart', '[]'), true);
         $selectedProducts = $request->query('selected_products', []);
 
-        if (!is_array($selectedProducts)) {
+        if (! is_array($selectedProducts)) {
             $selectedProducts = [$selectedProducts];
         }
 
@@ -140,7 +143,7 @@ class CartController extends Controller
         foreach ($cart as $cartKey => $item) {
             $product = Product::find($item['id']);
             $variant = $item['variant_id'] ? ProductVariant::find($item['variant_id']) : null;
-            if ($product && !$product->trashed() && (!$item['variant_id'] || ($variant && $variant->product_id === $product->id)) && in_array($cartKey, $selectedProducts)) {
+            if ($product && ! $product->trashed() && (! $item['variant_id'] || ($variant && $variant->product_id === $product->id)) && in_array($cartKey, $selectedProducts)) {
                 $selectedCart[$cartKey] = $item;
                 $total += $item['price'] * $item['quantity'];
             }

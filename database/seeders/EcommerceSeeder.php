@@ -77,8 +77,8 @@ class EcommerceSeeder extends Seeder
         foreach ($categories as $cat) {
             for ($i = 1; $i <= rand(5, 8); $i++) { // 5-8 products per category
                 $productId = (string) Str::uuid();
-                $sku = strtoupper(substr($cat['slug'], 0, 4)) . '-' . str_pad($i, 3, '0', STR_PAD_LEFT);
-                $name = $cat['name'] . ' Product ' . $i;
+                $sku = strtoupper(substr($cat['slug'], 0, 4)).'-'.str_pad($i, 3, '0', STR_PAD_LEFT);
+                $name = $cat['name'].' Product '.$i;
 
                 $price = rand(100, 999);
                 $hasDiscount = rand(0, 1);
@@ -91,9 +91,9 @@ class EcommerceSeeder extends Seeder
                     'id' => $productId,
                     'sku' => $sku,
                     'name' => $name,
-                    'description' => 'Description for ' . $name,
+                    'description' => 'Description for '.$name,
                     'price' => $hasVariant ? null : $price,
-                    'discount_price' => ($hasVariant || !$hasDiscount) ? null : $price - $discount,
+                    'discount_price' => ($hasVariant || ! $hasDiscount) ? null : $price - $discount,
                     'category_id' => $cat['id'],
                     'warranty' => '1 year',
                     'visibility' => 'public',
@@ -111,8 +111,8 @@ class EcommerceSeeder extends Seeder
                         'id' => (string) Str::uuid(),
                         'product_id' => $productId,
                         'variant_id' => null,
-                        'image_path' => $imgList[$imgIndex % count($imgList)] . '?rand=' . uniqid(),
-                        'alt_text' => $name . ' Image ' . ($imgIndex + 1),
+                        'image_path' => $imgList[$imgIndex % count($imgList)].'?rand='.uniqid(),
+                        'alt_text' => $name.' Image '.($imgIndex + 1),
                         'is_primary' => $imgIndex === 0,
                         'order' => $imgIndex + 1,
                         'created_at' => $now,
@@ -157,8 +157,8 @@ class EcommerceSeeder extends Seeder
                                 'id' => (string) Str::uuid(),
                                 'product_id' => $productId,
                                 'variant_id' => $variantId,
-                                'image_path' => $imgSrc . '?variant=' . strtolower($color) . uniqid(),
-                                'alt_text' => $name . ' - ' . $color . ' Variant Image ' . ($imgV + 1),
+                                'image_path' => $imgSrc.'?variant='.strtolower($color).uniqid(),
+                                'alt_text' => $name.' - '.$color.' Variant Image '.($imgV + 1),
                                 'is_primary' => false,
                                 'order' => $imgV + 100, // order to keep separate from main product images
                                 'created_at' => $now,

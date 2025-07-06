@@ -58,19 +58,20 @@
 
 
     <!-- Category Sections -->
-    @foreach ($categories as $category)
-        <div id="products-list-by-category-{{ $category->id }}">
+    @foreach ($indexCategories as $indexCategory)
+        <div id="products-list-by-category-{{ $indexCategory->id }}">
             <div class="container">
                 <div class="md:mt-16 mt-10">
                     <div class="flex justify-between items-center mb-4 md:mb-7">
-                        <h4 class="uppercase text-lg md:text-2xl md:tracking-widest font-bold">{{ $category->name }}</h4>
-                        <a href="{{ route('categories.show', $category->slug) }}" class="btn btn-sm btn-primary">See
+                        <h4 class="uppercase text-lg md:text-2xl md:tracking-widest font-bold">{{ $indexCategory->name }}
+                        </h4>
+                        <a href="{{ route('categories.show', $indexCategory->slug) }}" class="btn btn-sm btn-primary">See
                             All</a>
                     </div>
                 </div>
 
                 <div class="grid xl:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-5">
-                    @foreach ($category->products as $product)
+                    @foreach ($indexCategory->products as $product)
                         <x-product-card :product="$product" />
                     @endforeach
                 </div>

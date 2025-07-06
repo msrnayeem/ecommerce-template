@@ -29,7 +29,7 @@ class BannerSeeder extends Seeder
                 'status' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ];
 
         DB::table('banners')->insert($banners);

@@ -35,11 +35,11 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-     public function show($slug)
+    public function show($slug)
     {
         // Fetch the category by slug
         $category = Category::where('slug', $slug)->firstOrFail();
-        
+
         // Fetch products in this category with pagination
         $products = Product::where('category_id', $category->id)
             ->with(['images' => function ($query) {

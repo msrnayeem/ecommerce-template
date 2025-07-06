@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger("serial_no")->unique();
+            $table->tinyInteger('serial_no')->unique();
             $table->enum('type', ['header', 'footer'])->default('header');
             $table->string('title')->nullable();
             $table->string('image');

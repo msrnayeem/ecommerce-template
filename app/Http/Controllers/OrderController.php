@@ -8,9 +8,8 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -81,7 +80,7 @@ class OrderController extends Controller
                 // Handle case where variant or price is not found
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Invalid product or variant price for item ID: ' . $itemId);
+                    ->with('error', 'Invalid product or variant price for item ID: '.$itemId);
             }
         }
 
@@ -133,19 +132,20 @@ class OrderController extends Controller
 
         // Redirect to checkout with order details
         return redirect()->route('order.success', ['order_id' => $order->id])
-            ->with('success', 'Order placed successfully! Your order ID is ' . $order->id);
+            ->with('success', 'Order placed successfully! Your order ID is '.$order->id);
     }
 
- public function success($order_id)
-{
-    $order = Order::with('orderItems')->findOrFail($order_id);
-    return view('pages.success', compact('order'));
-}
+    public function success($order_id)
+    {
+        $order = Order::with('orderItems')->findOrFail($order_id);
+
+        return view('pages.success', compact('order'));
+    }
+
     public function invoice(Request $request, $order_id)
     {
         $order = Order::with('items')->findOrFail($order_id);
+
         return view('pages.invoice', compact('order'));
     }
-
-
 }

@@ -22,15 +22,15 @@ class HomeController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->with([
-                'products.images',    
-                'products.variants', 
+                'products.images',
+                'products.variants',
             ])
             ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
 
         // Fetch categories with products, eager load primary image and variants
-        $categories = Category::whereHas('products', function ($query) {
+        $indexCategories = Category::whereHas('products', function ($query) {
             $query->where('visibility', 'public');
         })
             ->with([
@@ -39,12 +39,13 @@ class HomeController extends Controller
                 },
                 'products.productVariants',
                 'products.productImages' => function ($query) {
-                    $query->where('is_primary', true); 
+                    $query->where('is_primary', true);
                 },
             ])
             ->take(2)
             ->get();
+
         //dd($categories);
-        return view('pages.index', compact('banners', 'offers', 'categories'));
+        return view('pages.index', compact('banners', 'offers', 'indexCategories'));
     }
 }

@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Offer extends Model
 {
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -58,14 +59,14 @@ class Offer extends Model
             ->where('start_date', '<=', now())
             ->where(function ($q) {
                 $q->whereNull('end_date')
-                  ->orWhere('end_date', '>=', now());
+                    ->orWhere('end_date', '>=', now());
             });
     }
 
     public function getIsCurrentlyActiveAttribute()
     {
-        return $this->is_active && 
-               $this->start_date <= now() && 
+        return $this->is_active &&
+               $this->start_date <= now() &&
                ($this->end_date === null || $this->end_date >= now());
     }
 }
