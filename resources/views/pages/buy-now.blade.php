@@ -70,8 +70,12 @@
                             <h3 class="text-xl font-bold mb-4">প্রোডাক্ট ডিটেইল</h3>
                             <table class="w-full border">
                                 <tr>
+                                    @php
+                                        $imageLink = env('IMAGE_LINK', 'http://localhost:8000'); // Fallback to localhost if IMAGE_LINK is not set
+                                    @endphp
                                     <td>
-                                        <img src="{{ $cart[0]['image'] }}" class="w-24 h-24 object-cover">
+                                        <img src="{{ $imageLink . '/product-image/' . basename($cart[0]['image']) }}"
+                                            class="w-20 h-24 object-cover">
                                     </td>
                                     <td class="pl-4">
                                         <strong>{{ $cart[0]['name'] }}</strong><br>

@@ -11,6 +11,7 @@ class CartController extends Controller
 {
     public function add(Request $request)
     {
+        
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
@@ -30,7 +31,7 @@ class CartController extends Controller
             'sku' => $product->sku,
             'price' => $variant ? ($variant->discount_price ?? $variant->price) : ($product->discount_price ?? $product->price),
             'original_price' => $variant ? $variant->price : $product->price,
-            'image' => $product->productImages->first()?->image_path ?? 'https://via.placeholder.com/150',
+            'image' => $product->productImages->first()?->path ?? 'https://via.placeholder.com/150',
             'quantity' => $request->quantity,
             'variant_id' => $variant?->id,
             'variant_name' => $variant?->variant_name,

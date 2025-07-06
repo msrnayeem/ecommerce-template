@@ -112,8 +112,13 @@
                                 <table class="w-full border">
                                     @foreach ($cart as $item)
                                         <tr>
+                                            @php
+                                                $imageLink = env('IMAGE_LINK', 'http://localhost:8000'); // Fallback to localhost if IMAGE_LINK is not set
+                                            @endphp
+
                                             <td>
-                                                <img src="{{ $item['image'] }}" class="w-24 h-24 object-cover">
+                                                <img src="{{ $imageLink . '/product-image/' . basename($item['image']) }}"
+                                                    class="w-24 h-24 object-cover">
                                             </td>
                                             <td class="pl-4">
                                                 <strong>{{ $item['name'] }}</strong><br>
