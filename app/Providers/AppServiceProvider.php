@@ -23,18 +23,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('*', function ($view) {
         $logo = Banner::where('type', 'logo')->where('status', true)->value('image');
-        dd($logo);
-        // logo
-        View::share('logo', $logo);
+        $categories = Category::whereNull('parent_id')->get();
 
-        // Share categories with all views
-        View::share('categories', Category::whereNull('parent_id')->get());
+        $cart = json_decode(Cookie::get('cart', '[]'), true);
+        $cartItemCount = array_sum(array_column($cart, 'quantity'));
 
-        View::share('cartItemCount', function () {
-            $cart = json_decode(Cookie::get('cart', '[]'), true);
-
-            return array_sum(array_column($cart, 'quantity'));
-        });
+        $view->with([
+            'logo' => $logo,
+            'categories' => $categories,
+            'cartItemCount' => $cartItemCount,
+        ]);
+    });
     }
 }
