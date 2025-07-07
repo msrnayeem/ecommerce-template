@@ -14,6 +14,11 @@ class TenantMiddleware
         $host = $request->getHost();
         $cleanHost = preg_replace('/^www\./', '', $host);
 
+        // If local environment, skip tenant DB switching
+        if (in_array($cleanHost, ['localhost', '127.0.0.1'])) {
+            return $next($request);
+        }
+
         $tenant = Tenant::where('custom_domain', $cleanHost)
             ->orWhere('domain', $cleanHost)
             ->first();

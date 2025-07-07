@@ -104,7 +104,7 @@
                                 <i class="bi bi-cart3 md:text-2xl text-lg" style="color:black"></i>
                                 <span class="cart-notification bg-primary text-white"
                                     style="color: white; background-color: black;">
-                                    {{ $cartItemCount() }}
+                                    {{ $cartItemCount }}
                                 </span>
                             </span>
                         </a>
