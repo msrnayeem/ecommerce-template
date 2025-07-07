@@ -39,13 +39,13 @@
                     <!-- Call now -->
                     <div class="call-now relative tooltip md:border md:text-primary text-primary px-3 py-1 rounded-md"
                         data-tip="Call Us">
-                        <a href="tel:01516137894" class="stretched-link"></a>
+                        <a href="tel:01680847204‬" class="stretched-link"></a>
                         <div class="flex items-center black">
                             <div class="md:mr-3">
                                 <i class="bi bi-telephone md:text-xl text-lg" style="color: black;"></i>
                             </div>
                             <div class="text-lg md:block hidden" style="color: black;">
-                                <strong style="color: black;">01516137894</strong>
+                                <strong style="color: black;">01680847204‬</strong>
                             </div>
                         </div>
                     </div>

@@ -14,8 +14,8 @@
 
 
                 <h3 class="mb-5 md:text-xl text-sm font-bold " style=" color: white;">Need Help?</h3>
-                <p class="mb-1"><i class="bi bi-telephone "></i> <span class="font-bold">01516137894</span></p>
-                <p class="mb-1"><i class="bi bi-envelope "></i> <span class="font-bold">admin@ekonlinebd.com</span>
+                <p class="mb-1"><i class="bi bi-telephone "></i> <span class="font-bold">01680847204‬</span></p>
+                <p class="mb-1"><i class="bi bi-envelope "></i> <span class="font-bold">admin@metasoftbd.net</span>
                 </p>
 
                 <p class="mb-5"><i class="bi bi-geo-alt"></i> <span class="font-bold ">Dhaka,Bangladesh</span></p>
@@ -59,11 +59,11 @@
         <hr class="border border-gray-800">
         <!-- Footer Copyright / End -->
         <div class="text-center py-4 stx-copyright-wrap">
-            <span class="text-sm stx-copyright-text">Copyright © 2025 EkOnlineBD. All Rights Reserved.</span>
+            <span class="text-sm stx-copyright-text">Copyright © 2025 Metasoft BD. All Rights Reserved.</span>
             <span class="mx-1 stx-copyright-power-by-divider" style="display: inline-block !important;">|</span>
             <span class="text-sm stx-copyright-power-by" style="display: inline-block !important;">Powered by <a
                     class="font-bold rounded-2xl text-[#FFBE2F]" href="#" target="_blank"
-                    title="Superfast Complete E-Commerce Solution first time in bangladesh">StoreX</a></span>
+                    title="Superfast Complete E-Commerce Solution first time in bangladesh">Metasoftbd</a></span>
         </div>
     </div>
 </footer>
