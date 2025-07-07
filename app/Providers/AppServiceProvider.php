@@ -22,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        //logo
+       View::share('logo', Banner::where('type', 'logo')->where('status', true)->value('image'));
+
         // Share categories with all views
         View::share('categories', Category::whereNull('parent_id')->get());
 

@@ -12,7 +12,8 @@
                 <!-- Logo -->
                 <div class="logo-wrap">
                     <a class="navbar-brand" href="/">
-                        <img class="img-fluid" src="{{ asset('assets/images/logo.png') }}" alt="Ek Online BD">
+                        <img class="img-fluid" src="{{ 'https://metasoftbd.net/product-image/' . basename($logo) }}"
+                            alt="meta soft bd">
                     </a>
                 </div>
 

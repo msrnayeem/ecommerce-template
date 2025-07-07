@@ -11,7 +11,7 @@ class HomeController extends Controller
     public function index()
     {
         // Fetch active banners, ordered by 'order'
-        $banners = Banner::where('status', true)
+        $banners = Banner::where('type', 'header')->where('status', true)
             ->orderBy('serial_no')
             ->get();
 
