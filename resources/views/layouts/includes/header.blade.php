@@ -12,8 +12,7 @@
                 <!-- Logo -->
                 <div class="logo-wrap">
                     <a class="navbar-brand" href="/">
-                        <img class="img-fluid" src="{{ 'https://metasoftbd.net/product-image/' . basename($logo) }}"
-                            alt="meta soft bd">
+                        <img class="img-fluid" src="{{ asset('storage/' . $logo) }}" alt="meta soft bd">
                     </a>
                 </div>
 
