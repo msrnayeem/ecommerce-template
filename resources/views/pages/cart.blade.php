@@ -65,7 +65,7 @@
                                                     class="form-checkbox h-5 w-5 text-blue-600 rounded" checked>
                                             </td>
                                             @php
-                                                $imageLink = env('IMAGE_LINK', 'http://localhost:8000'); // Fallback to localhost if IMAGE_LINK is not set
+                                                $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
                                             @endphp
                                             <td class="py-4 px-6">
                                                 <div class="flex items-center">

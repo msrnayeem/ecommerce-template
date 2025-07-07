@@ -113,7 +113,7 @@
                                     @foreach ($cart as $item)
                                         <tr>
                                             @php
-                                                $imageLink = env('IMAGE_LINK', 'http://localhost:8000'); // Fallback to localhost if IMAGE_LINK is not set
+                                                $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
                                             @endphp
 
                                             <td>

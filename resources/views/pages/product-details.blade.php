@@ -2,7 +2,7 @@
 
 @section('content')
     @php
-        $imageLink = env('IMAGE_LINK', 'http://localhost:8000');
+        $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net');
         $hasVariants = $product->has_variant;
         $firstVariant = $hasVariants ? $product->productVariants->first() : null;
         $variantPrice = $hasVariants && $firstVariant ? $firstVariant->discount_price ?? $firstVariant->price : null;
@@ -307,9 +307,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                            ` : ''}
+                                                    <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                    <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                ` : ''}
                 `;
 
                 // Update status text with new stock

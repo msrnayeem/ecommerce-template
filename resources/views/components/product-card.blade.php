@@ -38,7 +38,7 @@
                 @php
                     $primaryImage = $product->productImages->first();
                     $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage; // Use second image if available, else fallback to primary
-                    $imageLink = env('IMAGE_LINK', 'http://localhost:8000'); // Fallback to localhost if IMAGE_LINK is not set
+                    $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
                 @endphp
 
                 <img src="{{ $primaryImage ? $imageLink . '/product-image/' . basename($primaryImage->path) : 'https://via.placeholder.com/150' }}"
