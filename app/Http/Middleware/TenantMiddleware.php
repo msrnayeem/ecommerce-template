@@ -14,8 +14,9 @@ class TenantMiddleware
         $host = $request->getHost();
         $cleanHost = preg_replace('/^www\./', '', $host);
 
-        $tenant = Tenant::where('custom_domain', $cleanHost)
-            ->first();
+        $tenant =  Tenant::where('custom_domain', $cleanHost)
+                    ->orWhere('domain', $cleanHost)
+                    ->first();
 
         if (! $tenant) {
             abort(403, 'Shop not found.');
