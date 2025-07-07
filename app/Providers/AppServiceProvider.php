@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Category;
 use App\Models\Banner;
+use App\Models\Category;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -24,17 +24,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-        $logo = Banner::where('type', 'logo')->where('status', true)->value('image');
-        $categories = Category::whereNull('parent_id')->get();
+            $logo = Banner::where('type', 'logo')->where('status', true)->value('image');
 
-        $cart = json_decode(Cookie::get('cart', '[]'), true);
-        $cartItemCount = array_sum(array_column($cart, 'quantity'));
+            // Remove 'banners/' from the logo path if present
+            $logoFilename = str_replace('banners/', '', $logo);
 
-        $view->with([
-            'logo' => $logo,
-            'categories' => $categories,
-            'cartItemCount' => $cartItemCount,
-        ]);
-    });
+            $categories = Category::whereNull('parent_id')->get();
+            $cart = json_decode(Cookie::get('cart', '[]'), true);
+            $cartItemCount = array_sum(array_column($cart, 'quantity'));
+
+            $view->with([
+                'logo' => $logoFilename,
+                'categories' => $categories,
+                'cartItemCount' => $cartItemCount,
+            ]);
+        });
+
     }
 }
