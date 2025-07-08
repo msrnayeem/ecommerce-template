@@ -39,14 +39,13 @@
                     $primaryImage = $product->productImages->first();
                     $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage;
                     $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net/storage/');
-                    dd($primaryImage->path, $secondaryImage->path, $imageLink);
                 @endphp
 
-                <img src="{{ $primaryImage ? $imageLink . basename($primaryImage->path) : 'https://via.placeholder.com/150' }}"
+                <img src="{{ $primaryImage ? $imageLink . $primaryImage->path : 'https://via.placeholder.com/150' }}"
                     class="primary-img w-full h-full object-contain absolute inset-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
 
-                <img src="{{ $secondaryImage ? $imageLink . basename($secondaryImage->path) : ($primaryImage ? $imageLink . basename($primaryImage->path) : 'https://via.placeholder.com/150') }}"
+                <img src="{{ $secondaryImage ? $imageLink . $secondaryImage->path : ($primaryImage ? $imageLink . $primaryImage->path : 'https://via.placeholder.com/150') }}"
                     class="secondary-img w-full h-full object-contain absolute inset-0 opacity-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
 
