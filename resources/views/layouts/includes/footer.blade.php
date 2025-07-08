@@ -71,11 +71,11 @@
                 <div class="grid grid-cols lg:grid-cols-2">
                     <ul>
                         <li class="nav-item">
-                            <a class="nav-link" href="categories/returns-and-refunds-policy.html">Returns &amp; Refunds
+                            <a class="nav-link" href="{{ route('policies') }}">Returns &amp; Refunds
                                 Policy</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="categories/terms-and-condition">Terms &amp; Condition</a>
+                            <a class="nav-link" href="{{ route('conditions') }}">Terms &amp; Condition</a>
                         </li>
                     </ul>
                 </div>
