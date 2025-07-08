@@ -169,8 +169,8 @@
                                     <button type="submit" class="btn btn-success w-full submit-btn border-0">কার্ড এ
                                         যুক্ত করুন</button>
                                 </form>
-                                <a href="#" id="buy-now-link"
-                                    class="btn btn-success w-full submit-btn border-0">Order Now</a>
+                                <a href="{{ route('buy.now', ['sku' => $product->sku, 'variant' => $product->productVariants->first()->id]) }}"
+                                    id="buy-now-link" class="btn btn-success w-full submit-btn border-0">Order Now</a>
                             </div>
                             <!-- Action Buttons -->
                             <a href="tel:01680847204‬" id="product-details-call-now-button"
@@ -306,9 +306,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                                        ` : ''}
+                                                                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                            ` : ''}
                 `;
 
                 // Update status text with new stock
