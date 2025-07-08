@@ -26,15 +26,12 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $logo = Banner::where('type', 'logo')->where('status', true)->value('image');
 
-            // Remove 'banners/' from the logo path if present
-            $logoFilename = str_replace('banners/', '', $logo);
-
             $categories = Category::whereNull('parent_id')->get();
             $cart = json_decode(Cookie::get('cart', '[]'), true);
             $cartItemCount = array_sum(array_column($cart, 'quantity'));
 
             $view->with([
-                'logo' => $logoFilename,
+                'logo' => $logo,
                 'categories' => $categories,
                 'cartItemCount' => $cartItemCount,
             ]);

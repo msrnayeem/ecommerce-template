@@ -8,7 +8,7 @@
                 <!-- footer Logo -->
                 <div class="logo-wrap mb-5">
                     <a class="" href="/">
-                        <img src="https://metasoftbd.net/logo/{{ $logo }}" alt="footerLogo"
+                        <img src="{{ env('IMAGE_LINK') }}/storage/{{ $logo }}" alt="footerLogo"
                             style="max-width: 70px;">
                     </a>
                 </div>
