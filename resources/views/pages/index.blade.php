@@ -16,9 +16,8 @@
                         @foreach ($banners as $banner)
                             <li class="splide__slide">
                                 <a href="{{ $banner->link ?? '#' }}">
-                                    <img src="{{ $imageUrl . '/storage/' . $banner->image }}"
-                                        alt="{{ $banner->title ?? 'Banner' }}" class="w-full object-cover"
-                                        style="height: 400px;">
+                                    <img src="{{ $imageUrl . $banner->image }}" alt="{{ $banner->title ?? 'Banner' }}"
+                                        class="w-full object-cover" style="height: 400px;">
                                 </a>
                             </li>
                         @endforeach
