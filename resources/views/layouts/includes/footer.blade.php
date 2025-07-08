@@ -14,7 +14,8 @@
 
 
                 <h3 class="mb-5 md:text-xl text-sm font-bold " style=" color: white;">Need Help?</h3>
-                <p class="mb-1"><i class="bi bi-telephone "></i> <span class="font-bold">01680847204‬</span></p>
+                <p class="mb-1"><i class="bi bi-telephone "></i> <span class="font-bold">{{ $support }}</span>
+                </p>
                 <p class="mb-1"><i class="bi bi-envelope "></i> <span class="font-bold">admin@metasoftbd.net</span>
                 </p>
 
@@ -26,9 +27,38 @@
             <!-- Footer Product Links -->
             <div class="footer-single-item text-md">
                 <div class="mb-8">
-                    <h2 class="md:text-xl text-sm font-semibold mb-5 " style=" color: white;">Get in Touch</h2>
-                    <div class="wh-footer-social-icon mb-10 flex items-center gap-2">
-
+                    <h2 class="md:text-xl text-sm font-semibold mb-5" style="color: white;">Get in Touch</h2>
+                    <div class="wh-footer-social-icon mb-10 flex items-center gap-4">
+                        @if ($tiktok)
+                            <a href="{{ $tiktok }}" target="_blank"
+                                class="text-white hover:text-gray-400 text-lg">
+                                <i class="fab fa-tiktok"></i>
+                            </a>
+                        @endif
+                        @if ($whatsapp)
+                            <a href="https://wa.me/{{ $whatsapp }}" target="_blank"
+                                class="text-white hover:text-gray-400 text-lg">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        @endif
+                        @if ($instagram)
+                            <a href="{{ $instagram }}" target="_blank"
+                                class="text-white hover:text-gray-400 text-lg">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        @endif
+                        @if ($facebook)
+                            <a href="{{ $facebook }}" target="_blank"
+                                class="text-white hover:text-gray-400 text-lg">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        @endif
+                        @if ($youtube)
+                            <a href="{{ $youtube }}" target="_blank"
+                                class="text-white hover:text-gray-400 text-lg">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
