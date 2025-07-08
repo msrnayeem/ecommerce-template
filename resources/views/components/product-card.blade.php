@@ -5,12 +5,21 @@
                 return $variant->discount_price ?? $variant->price;
             })
             ->first();
-        $displayPrice = $lowestVariant->discount_price ?? $lowestVariant->price;
-        $originalPrice = $lowestVariant->price;
+        // Use product price if variant price is 0 or null
+        $displayPrice =
+            ($lowestVariant->discount_price ?? $lowestVariant->price) > 0
+                ? $lowestVariant->discount_price ?? $lowestVariant->price
+                : $product->discount_price ?? $product->price;
+        $originalPrice =
+            ($lowestVariant->discount_price ?? $lowestVariant->price) > 0 ? $lowestVariant->price : $product->price;
         $discountAmount =
-            $lowestVariant->discount_price && $lowestVariant->discount_price < $lowestVariant->price
+            ($lowestVariant->discount_price ?? $lowestVariant->price) > 0 &&
+            $lowestVariant->discount_price &&
+            $lowestVariant->discount_price < $lowestVariant->price
                 ? $lowestVariant->price - $lowestVariant->discount_price
-                : null;
+                : ($product->discount_price && $product->discount_price < $product->price
+                    ? $product->price - $product->discount_price
+                    : null);
         $variantId = $lowestVariant->id;
     } else {
         $displayPrice = $product->discount_price ?? $product->price;
@@ -21,6 +30,10 @@
                 : null;
         $variantId = null;
     }
+
+    $primaryImage = $product->productImages->first();
+    $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage;
+    $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net/storage/');
 @endphp
 
 <div
@@ -35,20 +48,16 @@
                         <strong class="-ml-[2px]">TK Off</strong>
                     </strong>
                 @endif
-                @php
-                    $primaryImage = $product->productImages->first();
-                    $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage;
-                    $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net/storage/');
-                @endphp
 
                 <img src="{{ $primaryImage ? $imageLink . $primaryImage->path : 'https://via.placeholder.com/150' }}"
+                    alt="{{ $product->name }}"
                     class="primary-img w-full h-full object-contain absolute inset-0 transition-all duration-300"
-                    loading="lazy" alt="{{ $product->name }}">
+                    loading="lazy">
 
                 <img src="{{ $secondaryImage ? $imageLink . $secondaryImage->path : ($primaryImage ? $imageLink . $primaryImage->path : 'https://via.placeholder.com/150') }}"
+                    alt="{{ $product->name }}"
                     class="secondary-img w-full h-full object-contain absolute inset-0 opacity-0 transition-all duration-300"
-                    loading="lazy" alt="{{ $product->name }}">
-
+                    loading="lazy">
             </div>
         </div>
         <div class="p-3">

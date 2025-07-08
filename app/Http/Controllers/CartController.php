@@ -13,30 +13,41 @@ class CartController extends Controller
     {
 
         $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'variant_id' => 'nullable|exists:product_variants,id',
-        ]);
+        'product_id' => 'required|exists:products,id',
+        'quantity' => 'required|integer|min:1',
+        'variant_id' => 'nullable|exists:product_variants,id',
+    ]);
 
-        $product = Product::with(['productImages', 'productVariants'])->findOrFail($request->product_id);
-        $variant = $request->variant_id ? ProductVariant::findOrFail($request->variant_id) : null;
+    
+    $product = Product::with(['productImages', 'productVariants'])->findOrFail($request->product_id);
+    $variant = $request->variant_id ? ProductVariant::with('variant','variantValue')->findOrFail($request->variant_id) : null;
+//dd($variant);
+    $cart = json_decode(Cookie::get('cart', '[]'), true);
 
-        $cart = json_decode(Cookie::get('cart', '[]'), true);
+    $cartKey = $variant ? $product->id.'_'.$variant->id : $product->id;
 
-        $cartKey = $variant ? $product->id.'_'.$variant->id : $product->id;
+    // Use product price if variant price is 0 or null
+    $price = $variant && ($variant->discount_price ?? $variant->price) > 0 
+        ? ($variant->discount_price ?? $variant->price) 
+        : ($product->discount_price ?? $product->price);
+    $original_price = $variant && ($variant->discount_price ?? $variant->price) > 0 
+        ? $variant->price 
+        : $product->price;
 
-        $cartItem = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'sku' => $product->sku,
-            'price' => $variant ? ($variant->discount_price ?? $variant->price) : ($product->discount_price ?? $product->price),
-            'original_price' => $variant ? $variant->price : $product->price,
-            'image' => $product->productImages->first()?->path ?? 'https://via.placeholder.com/150',
-            'quantity' => $request->quantity,
-            'variant_id' => $variant?->id,
-            'variant_name' => $variant?->variant_name,
-            'variant_value' => $variant?->variant_value,
-        ];
+    $cartItem = [
+        'id' => $product->id,
+        'name' => $product->name,
+        'sku' => $product->sku,
+        'price' => $price,
+        'original_price' => $original_price,
+        'image' => $product->productImages->first()?->path ?? 'https://via.placeholder.com/150',
+        'quantity' => $request->quantity,
+        'variant_id' => $variant?->id,
+        'variant_name' => $variant?->variant?->name,
+        'variant_value' => $variant?->variantValue?->name,
+    ];
+    //dd($cartItem);
+
 
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $request->quantity;

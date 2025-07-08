@@ -7,48 +7,39 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function buyNow($sku, $variant = null)
-    {
-        $product = Product::with('productVariants.variantValue', 'productImages')->where('sku', $sku)->firstOrFail();
-        $variant_info = $variant ? $product->productVariants->firstWhere('id', $variant) : null;
+   public function buyNow($sku, $variant = null)
+{
+    $product = Product::with('productVariants.variantValue', 'productImages')->where('sku', $sku)->firstOrFail();
+    $variant_info = $variant ? $product->productVariants->firstWhere('id', $variant) : null;
 
-        $price = $variant_info ? ($variant_info->discount_price ?? $variant_info->price) : ($product->discount_price ?? $product->price);
+    // Use product price if variant price is 0 or null
+    $price = $variant_info && ($variant_info->discount_price ?? $variant_info->price) > 0 
+        ? ($variant_info->discount_price ?? $variant_info->price) 
+        : ($product->discount_price ?? $product->price);
+    $original_price = $variant_info && ($variant_info->discount_price ?? $variant_info->price) > 0 
+        ? $variant_info->price 
+        : ($product->discount_price ? $product->price : null);
 
-        $cart = [
-            [
-                'product_id' => $product->id,
-                'variant_id' => $variant_info?->id,
-                'quantity' => 1,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'image' => $product->productImages->first()?->path ?? 'https://via.placeholder.com/150',
-                'price' => $price,
-                'original_price' => $variant_info ? $variant_info->price : ($product->discount_price ? $product->price : null),
-                'variant_name' => $variant_info?->variantValue?->name,
-                'variant_value_id' => $variant_info?->variantValue?->id,
-            ],
-        ];
+    $cart = [
+        [
+            'product_id' => $product->id,
+            'variant_id' => $variant_info?->id,
+            'quantity' => 1,
+            'name' => $product->name,
+            'sku' => $product->sku,
+            'image' => $product->productImages->first()?->path ?? 'https://via.placeholder.com/150',
+            'price' => $price,
+            'original_price' => $original_price,
+            'variant_name' => $variant_info?->variantValue?->name,
+            'variant_value_id' => $variant_info?->variantValue?->id,
+        ],
+    ];
 
-        $total = $price * $cart[0]['quantity'];
+    $total = $price * $cart[0]['quantity'];
 
-        return view('pages.buy-now', compact('product', 'cart', 'total'));
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    return view('pages.buy-now', compact('product', 'cart', 'total'));
+}
+  
 
     public function show($sku)
     {
@@ -68,27 +59,4 @@ class ProductController extends Controller
         return view('pages.product-details', compact('product', 'relatedProducts'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
-    }
 }

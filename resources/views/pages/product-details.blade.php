@@ -6,8 +6,8 @@
         $firstVariant = $hasVariants ? $product->productVariants->first() : null;
         $variantPrice = $hasVariants && $firstVariant ? $firstVariant->discount_price ?? $firstVariant->price : null;
         $variantStock = $hasVariants && $firstVariant ? $firstVariant->stock : null;
-        $productPrice = !$hasVariants ? $product->discount_price ?? $product->price : null;
-        $productStock = !$hasVariants ? $product->stock : null;
+        $productPrice = $product->price ?? null;
+        $productStock = $product->stock ?? null;
         $currentDateTime = now()->setTimezone('Asia/Dhaka')->format('h:i A +06, l, F d, Y');
     @endphp
 
@@ -97,9 +97,9 @@
                             <strong class="text-lg uppercase">PRICE:</strong>
                             <span class="text-lg md:text-xl ml-1 font-bold" id="display-price-wrap">
                                 <ins class="text-primary" id="display-price">
-                                    Tk
-                                    {{ $hasVariants ? number_format($variantPrice) : number_format($productPrice) }}
+                                    Tk {{ number_format($variantPrice ?? $productPrice) }}
                                 </ins>
+
                                 @if ($hasVariants && $firstVariant && $firstVariant->discount_price)
                                     <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk
                                         {{ number_format($firstVariant->price) }}</del>
@@ -123,12 +123,13 @@
                                 <select id="variant-select" name="variant_id" class="border rounded p-2 w-full max-w-xs">
                                     @foreach ($product->productVariants as $variant)
                                         <option value="{{ $variant->id }}"
-                                            data-price="{{ $variant->discount_price ?? $variant->price }}"
+                                            data-price="{{ $variant->discount_price ?? ($variant->price ?? $variant->product->price) }}"
                                             data-old-price="{{ $variant->price }}"
                                             data-discount="{{ $variant->discount_price ? number_format($variant->price - $variant->discount_price) : 0 }}"
-                                            data-stock="{{ $variant->stock }}" data-variant-id="{{ $variant->id }}">
+                                            data-stock="{{ $variant->stock ?? $variant->product->stock }}"
+                                            data-variant-id="{{ $variant->id }}">
                                             {{ $variant->variantValue->name ?? 'Variant' }} (Tk
-                                            {{ number_format($variant->discount_price ?? $variant->price) }})
+                                            {{ number_format($variant->discount_price ?? ($variant->price ?? $variant->product->price)) }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -136,13 +137,18 @@
                         @endif
 
                         <strong class="text-lg uppercase" id="status-text">
-                            Status: <span class="text-success capitalize">
-                                {{ ($hasVariants ? $variantStock : $productStock) > 0 ? 'In Stock' : 'Out of Stock' }}
-                                @if (($hasVariants ? $variantStock : $productStock) !== null)
-                                    ({{ $hasVariants ? $variantStock : $productStock }})
+                            Status:
+                            @php
+                                $stock = $variantStock ?? $productStock;
+                            @endphp
+                            <span class="{{ $stock > 0 ? 'text-success' : 'text-danger' }} capitalize">
+                                {{ $stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                                @if ($stock !== null)
+                                    ( {{ $stock }} )
                                 @endif
                             </span>
                         </strong>
+
 
                         <div>
                             <div class="quantity-wrap flex md:py-3 md:mr-0 mr-3 mb-2">
@@ -306,9 +312,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                                            ` : ''}
+                                                                                                                                                                        <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                                                                                                                        <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                                                                                                                    ` : ''}
                 `;
 
                 // Update status text with new stock
