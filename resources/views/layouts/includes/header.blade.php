@@ -45,7 +45,7 @@
                                 <i class="bi bi-telephone md:text-xl text-lg" style="color: black;"></i>
                             </div>
                             <div class="text-lg md:block hidden" style="color: black;">
-                                <strong style="color: black;">01680847204‬</strong>
+                                <strong style="color: black;">{{ $support }}‬</strong>
                             </div>
                         </div>
                     </div>

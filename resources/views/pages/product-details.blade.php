@@ -183,27 +183,45 @@
                                 class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto">
                                 <div class="flex items-center">
                                     <div class="mr-2 button-icon"></div>
-                                    <div>Call Now: +8801680847204‬</div>
+                                    <div>Call Now: {{ $support }}‬</div>
                                 </div>
                             </a>
-                            <a href="https://api.whatsapp.com/send/?phone=8801680847204‬&text={{ urlencode('Hi Ek Online BD. I want to buy ' . $product->name . ' | Price: Tk ' . ($hasVariants ? $firstVariant->discount_price ?? $firstVariant->price : $product->discount_price ?? $product->price) . ' | Requested on ' . $currentDateTime . ' | ' . url()->current()) }}"
-                                id="products-details-whatsapp-button"
-                                class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto c-no-radius text-white"
-                                style="background-color: rgba(16, 149, 136, 1);">
-                                <div class="flex items-center">
-                                    <div class="mr-2"></div>
-                                    <div><strong>হোয়াটসঅ্যাপ অর্ডার</strong></div>
-                                </div>
-                            </a>
-                            <a href="#" target="_blank" rel="noopener"
-                                class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto !border-0"
-                                id="products-details-messenger-button"
-                                style="background-color: rgba(17, 139, 128, 1); color: rgba(255, 255, 255, 1);">
-                                <div class="flex items-center">
-                                    <div class="mr-2"></div>
-                                    <div><strong>ম্যাসেঞ্জার অর্ডার</strong></div>
-                                </div>
-                            </a>
+                            @php
+                                $productName = $product->name;
+                                $price = $hasVariants
+                                    ? $firstVariant->discount_price ?? $firstVariant->price
+                                    : $product->discount_price ?? $product->price;
+                                $currentDateTime = now()->format('Y-m-d H:i');
+                                $whatsappText = urlencode(
+                                    "Hi. I want to buy {$productName} | SKu: {$product->sku} | Requested on {$currentDateTime} | " .
+                                        url()->current(),
+                                );
+                            @endphp
+
+                            @if ($whatsapp)
+                                <a href="https://api.whatsapp.com/send/?phone={{ $whatsapp }}&text={{ $whatsappText }}"
+                                    id="products-details-whatsapp-button"
+                                    class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto c-no-radius text-white"
+                                    style="background-color: rgba(16, 149, 136, 1);">
+                                    <div class="flex items-center">
+                                        <div class="mr-2"></div>
+                                        <div><strong>হোয়াটসঅ্যাপ অর্ডার</strong></div>
+                                    </div>
+                                </a>
+                            @endif
+
+                            @if ($facebook)
+                                <a href="{{ $facebook }}" target="_blank" rel="noopener"
+                                    class="btn btn-success btn-block mt-2 text-xl py-2 !h-auto !border-0"
+                                    id="products-details-messenger-button"
+                                    style="background-color: rgba(17, 139, 128, 1); color: rgba(255, 255, 255, 1);">
+                                    <div class="flex items-center">
+                                        <div class="mr-2"></div>
+                                        <div><strong>ম্যাসেঞ্জার অর্ডার</strong></div>
+                                    </div>
+                                </a>
+                            @endif
+
                         </div>
                     </div>
                 </div>
@@ -312,9 +330,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                                                                                                                                        <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                                                                                                                                        <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                                                                                                                                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                                                                                                                                            ` : ''}
                 `;
 
                 // Update status text with new stock
