@@ -39,7 +39,7 @@
                     $primaryImage = $product->productImages->first();
                     $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage;
                     $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net/storage/');
-                    dd($primaryImage, $secondaryImage, $imageLink);
+                    dd($primaryImage->path, $secondaryImage->path, $imageLink);
                 @endphp
 
                 <img src="{{ $primaryImage ? $imageLink . basename($primaryImage->path) : 'https://via.placeholder.com/150' }}"
