@@ -112,12 +112,8 @@
                                 <table class="w-full border">
                                     @foreach ($cart as $item)
                                         <tr>
-                                            @php
-                                                $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
-                                            @endphp
-
                                             <td>
-                                                <img src="{{ $imageLink . '/product-image/' . basename($item['image']) }}"
+                                                <img src="{{ env('IMAGE_LINK') . $item['image'] }}"
                                                     class="w-24 h-24 object-cover">
                                             </td>
                                             <td class="pl-4">

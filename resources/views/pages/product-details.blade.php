@@ -2,7 +2,6 @@
 
 @section('content')
     @php
-        $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net');
         $hasVariants = $product->has_variant;
         $firstVariant = $hasVariants ? $product->productVariants->first() : null;
         $variantPrice = $hasVariants && $firstVariant ? $firstVariant->discount_price ?? $firstVariant->price : null;
@@ -40,20 +39,20 @@
                         <div class="flexImg">
                             @forelse($product->productImages as $index => $image)
                                 @if ($index === 0)
-                                    <img src="{{ $imageLink . '/product-image/' . basename($image->path) }}"
+                                    <img src="{{ env('IMAGE_LINK') . $image->path }}"
                                         alt="{{ $image->caption ?? $product->name }}" class="main-image active"
                                         style="width: 400px; height: 300px; object-fit: contain;">
                                     <div class="zoomImg">
-                                        <img src="{{ $imageLink . '/product-image/' . basename($image->path) }}"
+                                        <img src="{{ env('IMAGE_LINK') . $image->path }}"
                                             alt="{{ $image->caption ?? $product->name }}" class="zoom-image active"
                                             style="width: 400px; height: 300px; object-fit: contain;">
                                     </div>
                                 @else
-                                    <img src="{{ $imageLink . '/product-image/' . basename($image->path) }}"
+                                    <img src="{{ env('IMAGE_LINK') . $image->path }}"
                                         alt="{{ $image->caption ?? $product->name }}" class="main-image"
                                         style="display: none; width: 400px; height: 300px; object-fit: contain;">
                                     <div class="zoomImg">
-                                        <img src="{{ $imageLink . '/product-image/' . basename($image->path) }}"
+                                        <img src="{{ env('IMAGE_LINK') . $image->path }}"
                                             alt="{{ $image->caption ?? $product->name }}" class="zoom-image"
                                             style="display: none; width: 400px; height: 300px; object-fit: contain;">
                                     </div>
@@ -73,7 +72,7 @@
                     <!-- Thumbnail Navigation -->
                     <div class="thumbnail-container mt-5">
                         @forelse($product->productImages as $index => $image)
-                            <img src="{{ $imageLink . '/product-image/' . basename($image->path) }}"
+                            <img src="{{ env('IMAGE_LINK') . $image->path }}"
                                 alt="{{ $image->caption ?? $product->name }}"
                                 class="thumbnail {{ $index === 0 ? 'active' : '' }}"
                                 onclick="selectThumbnail({{ $index }})"
@@ -307,9 +306,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                    <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                    <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                ` : ''}
+                                                                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                        ` : ''}
                 `;
 
                 // Update status text with new stock

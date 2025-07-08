@@ -64,13 +64,10 @@
                                                     value="{{ $cartKey }}"
                                                     class="form-checkbox h-5 w-5 text-blue-600 rounded" checked>
                                             </td>
-                                            @php
-                                                $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
-                                            @endphp
                                             <td class="py-4 px-6">
                                                 <div class="flex items-center">
-                                                    <img src="{{ $imageLink . '/product-image/' . basename($item['image']) }}"
-                                                        alt="product-image" class="w-16 h-16 object-contain rounded mr-4">
+                                                    <img src="{{ env('IMAGE_LINK') . $item['image'] }}" alt="product-image"
+                                                        class="w-16 h-16 object-contain rounded mr-4">
                                                     <div>
                                                         <h4 class="font-semibold text-gray-800">{{ $item['name'] }}</h4>
                                                         @if ($item['variant_id'])

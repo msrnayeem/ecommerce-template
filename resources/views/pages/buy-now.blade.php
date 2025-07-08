@@ -70,11 +70,8 @@
                             <h3 class="text-xl font-bold mb-4">প্রোডাক্ট ডিটেইল</h3>
                             <table class="w-full border">
                                 <tr>
-                                    @php
-                                        $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
-                                    @endphp
                                     <td>
-                                        <img src="{{ $imageLink . '/product-image/' . basename($cart[0]['image']) }}"
+                                        <img src="{{ env('IMAGE_LINK') . $cart[0]['image'] }}"
                                             class="w-20 h-24 object-cover">
                                     </td>
                                     <td class="pl-4">
