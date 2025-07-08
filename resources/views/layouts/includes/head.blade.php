@@ -9,8 +9,7 @@
 
     <meta property="og:url" content="index.html" />
     <meta property="og:type" content="website" />
-    <title>{{ app()->bound('currentTenant') ? app('currentTenant')->name : 'Default Store' }}
-
+    <title>{{ app()->bound('currentTenant') ? app('currentTenant')->name : 'Default Store' }} -Online Shop
     </title>
     <link
         href="../stx-v3-static-assets.obs.as-south-208.rcloud.reddotdigitalit.com/Metasoft BD/images/1744722425222_EK-Online-BD.png"
