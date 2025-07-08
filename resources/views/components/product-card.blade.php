@@ -38,14 +38,14 @@
                 @php
                     $primaryImage = $product->productImages->first();
                     $secondaryImage = $product->productImages->skip(1)->first() ?? $primaryImage; // Use second image if available, else fallback to primary
-                    $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net'); // Fallback to localhost if IMAGE_LINK is not set
+                    $imageLink = env('IMAGE_LINK', 'https://metasoftbd.net/storage/'); // Fallback to localhost if IMAGE_LINK is not set
                 @endphp
 
-                <img src="{{ $primaryImage ? $imageLink . '/product-image/' . basename($primaryImage->path) : 'https://via.placeholder.com/150' }}"
+                <img src="{{ $primaryImage ? $imageLink . basename($primaryImage->path) : 'https://via.placeholder.com/150' }}"
                     class="primary-img w-full h-full object-contain absolute inset-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
 
-                <img src="{{ $secondaryImage ? $imageLink . '/product-image/' . basename($secondaryImage->path) : ($primaryImage ? $imageLink . '/product-image/' . basename($primaryImage->path) : 'https://via.placeholder.com/150') }}"
+                <img src="{{ $secondaryImage ? $imageLink . basename($secondaryImage->path) : ($primaryImage ? $imageLink . basename($primaryImage->path) : 'https://via.placeholder.com/150') }}"
                     class="secondary-img w-full h-full object-contain absolute inset-0 opacity-0 transition-all duration-300"
                     loading="lazy" alt="{{ $product->name }}">
 
