@@ -17,7 +17,7 @@
                             <li class="splide__slide">
                                 <a href="{{ $banner->link ?? '#' }}">
                                     <img src="{{ $imageUrl . $banner->image }}" alt="{{ $banner->title ?? 'Banner' }}"
-                                        class="w-full object-cover" style="height: 400px;">
+                                        class="w-full h-auto max-w-full object-cover" style="aspect-ratio: 3/1;">
                                 </a>
                             </li>
                         @endforeach
