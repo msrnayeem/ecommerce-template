@@ -64,7 +64,7 @@
                             <h3 class="md:text-xl text-lg font-bold mb-8 md:text-left text-center">
                                 <span class="border-b-2 border-dashed border-gray-400">অর্ডার ডিটেইল</span>
                             </h3>
-                            <p><strong>অর্ডার আইডি:</strong> {{ $order->id }}</p>
+                            <p><strong>অর্ডার আইডি:</strong> MSBD-ORD-{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
                             <p><strong>নাম:</strong> {{ $order->customer_name }}</p>
                             <p><strong>মোবাইল নাম্বার:</strong> {{ $order->customer_phone }}</p>
                             <p><strong>ঠিকানা:</strong> {{ $order->shipping_address }}</p>

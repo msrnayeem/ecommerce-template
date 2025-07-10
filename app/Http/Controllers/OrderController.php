@@ -104,25 +104,30 @@ class OrderController extends Controller
     }
 
     public function success($order_id)
-    {
-        $order = Order::with([
-            'orderItems.orderable.productImages',
-            'orderItems.orderable.product.productImages',
-        ])->findOrFail($order_id);
-
-        return view('pages.success', compact('order'));
-    }
-
-    public function invoice(Request $request, $order_id)
 {
-    $order = Order::with([
-        'orderItems.orderable', // Load Product or ProductVariant
-        'orderItems.orderable.product', // For variant fallback info
-        'orderItems.orderable.variant',
-        'orderItems.orderable.variantValue',
-    ])->findOrFail($order_id);
+    $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
+
+    $order->orderItems->loadMorph('orderable', [
+        \App\Models\Product::class => ['productImages'],
+        \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
+    ]);
+
+    return view('pages.success', compact('order'));
+}
+
+
+public function invoice(Request $request, $order_id)
+{
+    $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
+
+    // Dynamically load morph relations based on actual type
+    $order->orderItems->loadMorph('orderable', [
+        \App\Models\Product::class => ['productImages'],
+        \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
+    ]);
 
     return view('pages.invoice', compact('order'));
 }
+
 
 }

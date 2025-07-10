@@ -49,7 +49,7 @@
 <body>
     <div class="header">
         <h1>Invoice</h1>
-        <p><strong>Order ID:</strong> {{ $order->id }}</p>
+        <p><strong>Order ID:</strong> MSBD-ORD-{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
         <p><strong>Customer Name:</strong> {{ $order->customer_name }}</p>
         <p><strong>Phone:</strong> {{ $order->customer_phone }}</p>
         <p><strong>Address:</strong> {{ $order->shipping_address }}</p>
