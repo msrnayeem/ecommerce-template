@@ -73,10 +73,12 @@
                             <p><strong>স্ট্যাটাস:</strong> {{ ucfirst($order->status) }}</p>
                             <div class="mt-6">
                                 <a href="{{ route('order.invoice', ['order_id' => $order->id]) }}"
-                                    class="btn btn-success w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">Download
-                                    Invoice</a>
+                                    class="btn btn-success w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">
+                                    Download Invoice
+                                </a>
                             </div>
                         </div>
+
                         <!-- Order Items -->
                         <div class="md:w-1/2 p-2">
                             <h3 class="md:text-xl text-lg font-bold mb-8 md:text-left text-center">
@@ -95,51 +97,58 @@
                                         <tr class="my-2 flex justify-between items-center pr-2 shadow-md">
                                             <td class="flex items-center p-2 w-4/5">
                                                 <div>
-                                                    <img class="max-w-[80px]" alt="{{ $item->name }}"
-                                                        src="{{ $item->product ? $item->product->images->first()->image_path ?? 'https://via.placeholder.com/150' : 'https://via.placeholder.com/150' }}">
+                                                    <img class="max-w-[80px]" alt="{{ $item->display_name }}"
+                                                        src="{{ env('IMAGE_LINK') . $item->image_path }}">
                                                 </div>
                                                 <div class="ml-4">
                                                     <h1 class="c-length text-lg md:font-semibold line-clamp">
-                                                        {{ $item->name }}</h1>
+                                                        {{ $item->display_name }}
+                                                    </h1>
                                                     <p class="text-sm">Qty: {{ $item->quantity }}</p>
-                                                    @if ($item->variant_id)
-                                                        <p class="text-sm">Variant: {{ $item->variant_name }} -
-                                                            {{ $item->variant_value }}</p>
+                                                    @if ($item->orderable instanceof \App\Models\ProductVariant)
+                                                        <p class="text-sm">
+                                                            Variant: {{ $item->orderable->variant->name ?? '' }} -
+                                                            {{ $item->orderable->variantValue->name ?? '' }}
+                                                        </p>
                                                     @endif
                                                 </div>
                                             </td>
                                             <td class="text-right md:w-2/5 w-1/5">
                                                 <strong>
-                                                    <span>Tk </span><span
-                                                        class="text-xl">{{ number_format($item->total, 2) }}</span>
+                                                    <span>Tk </span>
+                                                    <span class="text-xl">{{ number_format($item->total, 2) }}</span>
                                                 </strong>
                                             </td>
                                         </tr>
                                     @endforeach
+
                                     <!-- Delivery Charge -->
                                     <tr class="flex justify-between border-t border-dashed border-gray-400 py-2 px-2">
                                         <td class="text-sm">ডেলিভারি চার্জ</td>
                                         <td></td>
                                         <td class="text-right text-xl">
-                                            <strong><span>Tk
-                                                </span><span>{{ number_format($order->delivery_charge, 2) }}</span></strong>
+                                            <strong><span>Tk </span>
+                                                <span>{{ number_format($order->delivery_charge, 2) }}</span></strong>
                                         </td>
                                     </tr>
+
                                     <!-- Total -->
                                     <tr class="flex justify-between border-t border-dashed border-gray-400 py-2 px-2">
                                         <td class="text-sm">টোটাল</td>
                                         <td></td>
                                         <td class="text-right text-xl">
-                                            <strong><span>Tk
-                                                </span><span>{{ number_format($order->total_amount, 2) }}</span></strong>
+                                            <strong><span>Tk </span>
+                                                <span>{{ number_format($order->total_amount, 2) }}</span></strong>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+
                             <div class="mt-6 flex justify-end">
                                 <a href="{{ route('home') }}"
-                                    class="btn btn-primary w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">Continue
-                                    Shopping</a>
+                                    class="btn btn-primary w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">
+                                    Continue Shopping
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -147,8 +156,9 @@
                     <p class="text-gray-600 text-center">Order not found.</p>
                     <div class="mt-6 text-center">
                         <a href="{{ route('home') }}"
-                            class="btn btn-primary w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">Continue
-                            Shopping</a>
+                            class="btn btn-primary w-full md:w-1/3 uppercase md:p-3 p-5 font-bold text-sm">
+                            Continue Shopping
+                        </a>
                     </div>
                 @endif
             </div>

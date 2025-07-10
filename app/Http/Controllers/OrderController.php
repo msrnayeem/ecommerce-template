@@ -105,15 +105,24 @@ class OrderController extends Controller
 
     public function success($order_id)
     {
-        $order = Order::with('orderItems')->findOrFail($order_id);
+        $order = Order::with([
+            'orderItems.orderable.productImages',
+            'orderItems.orderable.product.productImages',
+        ])->findOrFail($order_id);
 
         return view('pages.success', compact('order'));
     }
 
     public function invoice(Request $request, $order_id)
-    {
-        $order = Order::with('items')->findOrFail($order_id);
+{
+    $order = Order::with([
+        'orderItems.orderable', // Load Product or ProductVariant
+        'orderItems.orderable.product', // For variant fallback info
+        'orderItems.orderable.variant',
+        'orderItems.orderable.variantValue',
+    ])->findOrFail($order_id);
 
-        return view('pages.invoice', compact('order'));
-    }
+    return view('pages.invoice', compact('order'));
+}
+
 }

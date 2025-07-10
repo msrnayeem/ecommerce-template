@@ -71,20 +71,35 @@
         </thead>
         <tbody>
             @foreach ($order->orderItems as $item)
+                @php
+                    $isVariant = $item->orderable instanceof \App\Models\ProductVariant;
+                    $productName = $isVariant
+                        ? ($item->orderable->product->name ?? $item->name) .
+                            ' - ' .
+                            ($item->orderable->variantValue->name ?? '')
+                        : $item->orderable->name ?? $item->name;
+                    $sku = $item->orderable->sku ?? $item->sku;
+                @endphp
                 <tr>
-                    <td>{{ $item->name }}</td>
-                    <td>{{ $item->sku }}</td>
+                    <td>{{ $productName }}</td>
+                    <td>{{ $sku }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>{{ number_format($item->price) }}</td>
+                    <td>{{ number_format($item->unit_price) }}</td>
                     <td>{{ number_format($item->total) }}</td>
                 </tr>
             @endforeach
+            <tr>
+                <td colspan="3"></td>
+                <td><strong>Delivery Charge</strong></td>
+                <td>{{ number_format($order->delivery_charge) }}</td>
+            </tr>
             <tr class="total">
                 <td colspan="3"></td>
                 <td>Total</td>
                 <td>{{ number_format($order->total_amount) }}</td>
             </tr>
         </tbody>
+
     </table>
 </body>
 

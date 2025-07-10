@@ -61,4 +61,35 @@ class OrderItem extends Model
                 }, 'variant', 'variantValue']);
             }]);
     }
+
+    public function getDisplayNameAttribute()
+    {
+        if ($this->orderable instanceof \App\Models\ProductVariant) {
+            return $this->orderable->display_name;
+        }
+
+        if ($this->orderable instanceof \App\Models\Product) {
+            return $this->orderable->name;
+        }
+
+        return $this->name;
+    }
+
+    public function getImagePathAttribute()
+    {
+        if ($this->orderable instanceof \App\Models\ProductVariant) {
+            $variantImage = $this->orderable->productImages->first();
+            if ($variantImage) {
+                return $variantImage->path;
+            }
+
+            return $this->orderable->product->productImages->first()->path ?? 'https://via.placeholder.com/150';
+        }
+
+        if ($this->orderable instanceof \App\Models\Product) {
+            return $this->orderable->productImages->first()->path ?? 'https://via.placeholder.com/150';
+        }
+
+        return 'https://via.placeholder.com/150';
+    }
 }
