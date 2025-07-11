@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Models\StoreInformation;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,15 @@ class AppServiceProvider extends ServiceProvider
             $whatsapp = $whatsappRaw ? preg_replace('/\D/', '', $whatsappRaw) : null;
             $support = Setting::getValue('customer_service_number') ?? '01680847204';
 
+            $store = StoreInformation::first();
+            if ($store) {
+                $company_name = $store->name;
+                $support_email = $store->email;
+                $address = $store->address;
+                $website = $store->website ?? request()->getHost();
+                $phone_number = $store->phone_number;
+            }
+
             $view->with([
                 'logo' => $logo,
                 'categories' => $categories,
@@ -51,6 +61,13 @@ class AppServiceProvider extends ServiceProvider
                 'instagram' => $instagram,
                 'whatsapp' => $whatsapp,
                 'support' => $support,
+
+                // Store information
+                'company_name' => $company_name ?? null,
+                'support_email' => $support_email ?? null,
+                'address' => $address ?? null,
+                'website' => $website ?? null,
+                'phone_number' => $phone_number ?? null,
             ]);
         });
     }
