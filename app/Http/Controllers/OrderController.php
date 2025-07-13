@@ -78,7 +78,6 @@ class OrderController extends Controller
             'total_amount' => $totalAmount,
             'payment_method' => $customerInfo['payment_method'],
             'status' => 'pending',
-            'shipping_status' => 'pending',
             'payment_status' => 'unpaid',
         ]);
 
@@ -104,30 +103,27 @@ class OrderController extends Controller
     }
 
     public function success($order_id)
-{
-    $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
+    {
+        $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
 
-    $order->orderItems->loadMorph('orderable', [
-        \App\Models\Product::class => ['productImages'],
-        \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
-    ]);
+        $order->orderItems->loadMorph('orderable', [
+            \App\Models\Product::class => ['productImages'],
+            \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
+        ]);
 
-    return view('pages.success', compact('order'));
-}
+        return view('pages.success', compact('order'));
+    }
 
+    public function invoice(Request $request, $order_id)
+    {
+        $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
 
-public function invoice(Request $request, $order_id)
-{
-    $order = Order::with(['orderItems.orderable'])->findOrFail($order_id);
+        // Dynamically load morph relations based on actual type
+        $order->orderItems->loadMorph('orderable', [
+            \App\Models\Product::class => ['productImages'],
+            \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
+        ]);
 
-    // Dynamically load morph relations based on actual type
-    $order->orderItems->loadMorph('orderable', [
-        \App\Models\Product::class => ['productImages'],
-        \App\Models\ProductVariant::class => ['productImages', 'product.productImages', 'variant', 'variantValue'],
-    ]);
-
-    return view('pages.invoice', compact('order'));
-}
-
-
+        return view('pages.invoice', compact('order'));
+    }
 }
