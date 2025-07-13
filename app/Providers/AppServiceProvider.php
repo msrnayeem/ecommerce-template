@@ -38,7 +38,6 @@ class AppServiceProvider extends ServiceProvider
             $instagram = Setting::getValue('customer_instagram');
             $whatsappRaw = Setting::getValue('customer_whatsapp') ?? '01680847204';
             $whatsapp = $whatsappRaw ? preg_replace('/\D/', '', $whatsappRaw) : null;
-            $support = Setting::getValue('customer_service_number') ?? '01680847204';
 
             $store = StoreInformation::first();
             if ($store) {
@@ -46,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
                 $support_email = $store->email;
                 $address = $store->address;
                 $website = $store->website ?? request()->getHost();
-                $phone_number = $store->phone_number;
+                $phone_number = $store->phone_number ?? '01680847204';
             }
 
             $view->with([
@@ -60,14 +59,13 @@ class AppServiceProvider extends ServiceProvider
                 'tiktok' => $tiktok,
                 'instagram' => $instagram,
                 'whatsapp' => $whatsapp,
-                'support' => $support,
 
                 // Store information
                 'company_name' => $company_name ?? null,
                 'support_email' => $support_email ?? null,
                 'address' => $address ?? null,
                 'website' => $website ?? null,
-                'phone_number' => $phone_number ?? null,
+                'phone_number' => $phone_number ?? '01680847204',
             ]);
         });
     }

@@ -45,7 +45,7 @@
                                 <i class="bi bi-telephone md:text-xl text-lg" style="color: black;"></i>
                             </div>
                             <div class="text-lg md:block hidden" style="color: black;">
-                                <strong style="color: black;">{{ $support }}‬</strong>
+                                <strong style="color: black;">{{ $phone_number }}‬</strong>
                             </div>
                         </div>
                     </div>
