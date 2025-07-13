@@ -235,7 +235,7 @@
                 <section id="marzen" class="tab-panel !pt-0">
                     <div class="text-md md:text-lg p-5 border border-[var(--primary-color)] border-t-0">
                         <div class="mt-4 desc mb-5">
-                            <p>{{ $product->description }}</p>
+                            <p>{!! $product->description !!}</p>
                             @if ($product->warranty)
                                 <p><strong>ওয়ারেন্টি:</strong> {{ $product->warranty }}</p>
                             @endif
@@ -330,9 +330,9 @@
                 displayPriceWrap.innerHTML = `
                     <ins class="text-primary" id="display-price">Tk ${Number(price).toLocaleString()}</ins>
                     ${discount > 0 ? `
-                                                                                                                                                                                                            <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
-                                                                                                                                                                                                            <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
-                                                                                                                                                                                                        ` : ''}
+                                                                                                                                                                                                                <del class="text-gray-400 font-normal ml-2" id="display-old-price">Tk ${Number(oldPrice).toLocaleString()}</del>
+                                                                                                                                                                                                                <span class="discount-percent ml-2 bg-orange-500 z-10 text-xs text-white px-3 py-1" id="display-discount">${discount} Tk off</span>
+                                                                                                                                                                                                            ` : ''}
                 `;
 
                 // Update status text with new stock
