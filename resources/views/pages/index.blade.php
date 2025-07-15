@@ -72,7 +72,8 @@
                     <div class="flex justify-between items-center mb-4 md:mb-7">
                         <h4 class="uppercase text-lg md:text-2xl md:tracking-widest font-bold">{{ $indexCategory->name }}
                         </h4>
-                        <a href="{{ route('categories.show', $indexCategory->slug) }}" class="btn btn-sm btn-primary">See
+                        <a href="{{ route('categories.show', $indexCategory->slug) }}?main_only=1"
+                            class="btn btn-sm btn-primary">See
                             All</a>
                     </div>
                 </div>
