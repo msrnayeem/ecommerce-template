@@ -37,7 +37,7 @@ class HomeController extends Controller
         })
             ->with([
                 'products' => function ($query) {
-                    $query->where('visibility', 'public')->take(4); // Limit to 4 products per category
+                    $query->where('visibility', 'public')->take(5); // Limit to 4 products per category
                 },
                 'products.productVariants',
                 'products.productImages' => function ($query) {
