@@ -1,5 +1,7 @@
 <head>
-
+    @php
+        $marketingIntegration = \App\Models\MarketingIntegration::first();
+    @endphp
     <!-- Google Tag Manager -->
     @if (isset($marketingIntegration) && $marketingIntegration->google_tag_manager_id)
         <script>
