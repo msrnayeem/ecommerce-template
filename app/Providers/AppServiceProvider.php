@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-            $logo = Banner::where('type', 'logo')->where('status', true)->value('image');
+            $logo = Setting::getValue('logo');
 
             $categories = Category::whereNull('parent_id')->get();
             $cart = json_decode(Cookie::get('cart', '[]'), true);
