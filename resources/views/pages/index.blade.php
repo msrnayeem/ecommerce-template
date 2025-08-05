@@ -4,7 +4,7 @@
 @section('content')
     <!-- Banner Section -->
     @php
-        $imageUrl = env('IMAGE_LINK', 'https://metasoftbd.net/storage/');
+        $imageUrl = env('IMAGE_LINK', 'https://metasoftbd.net/');
 
     @endphp
 
