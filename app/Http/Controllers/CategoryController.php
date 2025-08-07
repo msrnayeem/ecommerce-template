@@ -7,16 +7,6 @@ use App\Models\Product;
 
 class CategoryController extends Controller
 {
-    // ['productImages', 'productVariants']
-    // // Fetch the category by slug
-    // $category = Category::where('slug', $slug)->firstOrFail();
-
-    // // Fetch products in this category with pagination
-    // $products = Product::where('category_id', $category->id)
-    //     ->with(['productImages' => function ($query) {
-    //         $query->where('is_primary', true);
-    //     }])
-    //     ->paginate(8); // Paginate 8 products per page
     /**
      * Display the specified resource.
      */
@@ -30,6 +20,8 @@ class CategoryController extends Controller
             ->when(! $mainOnly, function ($query) {
                 return $query->with(['children.products' => function ($query) {
                     $query->where('visibility', 'public')
+                        ->orderBy('is_featured', 'DESC') // Featured products first
+                        ->orderBy('created_at', 'DESC')  // Then by newest
                         ->with([
                             'productVariants',
                             'productImages' => function ($query) {
@@ -49,6 +41,8 @@ class CategoryController extends Controller
         // Fetch paginated products for the main category
         $products = $category->products()
             ->where('visibility', 'public')
+            ->orderBy('is_featured', 'DESC') // Featured products first
+            ->orderBy('created_at', 'DESC')  // Then by newest
             ->with([
                 'productVariants',
                 'productImages' => function ($query) {

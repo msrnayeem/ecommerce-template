@@ -35,17 +35,19 @@ class HomeController extends Controller
         $indexCategories = Category::whereHas('products', function ($query) {
             $query->where('visibility', 'public');
         })
-            ->with([
-                'products' => function ($query) {
-                    $query->where('visibility', 'public')->take(5); // Limit to 4 products per category
-                },
-                'products.productVariants',
-                'products.productImages' => function ($query) {
-                    $query->where('is_primary', true);
-                },
-            ])
-            ->take(2)
-            ->get();
+        ->with([
+            'products' => function ($query) {
+                $query->where('visibility', 'public')
+                    ->orderBy('is_featured', 'DESC')
+                    ->orderBy('created_at', 'DESC') // Secondary ordering
+                    ->take(5);
+            },
+            'products.productVariants',
+            'products.productImages' => function ($query) {
+                $query->where('is_primary', true);
+            },
+        ])
+        ->get();
 
         // dd($categories);
         return view('pages.index', compact('banners', 'offers', 'indexCategories'));
