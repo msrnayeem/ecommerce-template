@@ -60,9 +60,14 @@
                                 <select name="deliveryTitle" id="deliveryTitle"
                                     class="w-full border border-gray-300 p-2 rounded" required>
                                     <option value="">সিলেক্ট করুন</option>
-                                    <option value="1" data-charge="60">ঢাকা সিটির মধ্যে</option>
-                                    <option value="2" data-charge="120">ঢাকা সিটির বাহিরে</option>
+                                    @foreach ($charges as $index => $charge)
+                                        <option value="{{ $index }}" data-charge="{{ $charge->delivery_charge }}"
+                                            {{ old('deliveryTitle') == $index ? 'selected' : '' }}>
+                                            {{ $charge->zone_name }}
+                                        </option>
+                                    @endforeach
                                 </select>
+
                             </div>
                         </div>
 

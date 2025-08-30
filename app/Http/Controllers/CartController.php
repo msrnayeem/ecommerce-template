@@ -166,7 +166,7 @@ class CartController extends Controller
 
         session(['selected_products' => $selectedProducts]);
 
-         $charges = DeliveryCharge::where('status',true)->get();
+        $charges = DeliveryCharge::where('status',true)->get();
 
         return view('pages.checkout', ['cart' => $selectedCart, 'total' => $total,'charges'=>$charges]);
     }

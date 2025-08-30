@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\DeliveryCharge;
 
 class ProductController extends Controller
 {
@@ -35,8 +36,9 @@ class ProductController extends Controller
         ];
 
         $total = $price * $cart[0]['quantity'];
+        $charges = DeliveryCharge::where('status',true)->get();
 
-        return view('pages.buy-now', compact('product', 'cart', 'total'));
+        return view('pages.buy-now', compact('product', 'cart', 'total', 'charges'));
     }
 
     public function show($sku)
