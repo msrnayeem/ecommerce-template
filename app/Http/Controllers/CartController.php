@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\DeliveryCharge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 
@@ -165,6 +166,8 @@ class CartController extends Controller
 
         session(['selected_products' => $selectedProducts]);
 
-        return view('pages.checkout', ['cart' => $selectedCart, 'total' => $total]);
+         $charges = DeliveryCharge::where('status',true)->get();
+
+        return view('pages.checkout', ['cart' => $selectedCart, 'total' => $total,'charges'=>$charges]);
     }
 }

@@ -92,19 +92,21 @@
                                     <select name="deliveryTitle" id="deliveryTitle"
                                         class="w-full border border-gray-300 p-2 rounded custom-checkout-bg" required>
                                         <option value="">সিলেক্ট করুন</option>
-                                        <option value="1" data-charge="60"
-                                            {{ old('deliveryTitle') == '1' ? 'selected' : '' }}>
-                                            ঢাকা সিটির মধ্যে
-                                        </option>
-                                        <option value="2" data-charge="120"
-                                            {{ old('deliveryTitle') == '2' ? 'selected' : '' }}>
-                                            ঢাকা সিটির বাহিরে
-                                        </option>
+                                        @foreach ($charges as $index => $charge)
+                                            <option value="{{ $index }}"
+                                                data-charge="{{ $charge->delivery_charge }}"
+                                                {{ old('deliveryTitle') == $index ? 'selected' : '' }}>
+                                                {{ $charge->zone_name }}
+                                            </option>
+                                        @endforeach
+
                                     </select>
                                     @error('deliveryTitle')
                                         <p class="text-red-500 p-2 bg-slate-100 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
+
+
                             </div>
 
                             <div class="md:w-1/2 p-2 form-inner-right-part">
