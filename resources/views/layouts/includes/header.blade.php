@@ -39,7 +39,7 @@
                     <!-- Call now -->
                     <div class="call-now relative tooltip md:border md:text-primary text-primary px-3 py-1 rounded-md"
                         data-tip="Call Us">
-                        <a href="tel:01680847204‬" class="stretched-link"></a>
+                        <a href="tel:{{ $phone_number }}‬" class="stretched-link"></a>
                         <div class="flex items-center black">
                             <div class="md:mr-3">
                                 <i class="bi bi-telephone md:text-xl text-lg" style="color: black;"></i>
